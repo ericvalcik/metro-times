@@ -18,52 +18,51 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { X } from "lucide-react";
+import { useAppContext } from "@/components/AppContext";
 
 type Status = {
-  value: string;
+  value: string[];
   label: string;
 };
 
-const statuses: Status[] = [
+const stations: Status[] = [
   {
-    value: "backlog",
-    label: "Backlog",
-  },
-  {
-    value: "todo",
-    label: "Todo",
-  },
-  {
-    value: "in progress",
-    label: "In Progress",
-  },
-  {
-    value: "done",
-    label: "Done",
-  },
-  {
-    value: "canceled",
-    label: "Canceled",
+    value: ["U237Z101P", "U237Z102P"],
+    label: "Karlovo náměstí",
   },
 ];
 
 export function ComboBoxResponsive() {
   const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  const { stops, setStops } = useAppContext();
   const [selectedStatus, setSelectedStatus] = React.useState<Status | null>(
     null,
   );
+
+  const onSelect = (value: string | null) => {
+    setSelectedStatus(
+      stations.find((station) => station.label === value) || null,
+    );
+    setStops(stations.find((station) => station.label === value)?.value || []);
+    setOpen(false);
+  };
 
   if (isDesktop) {
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="w-[150px] justify-start">
-            {selectedStatus ? <>{selectedStatus.label}</> : <>+ Set status</>}
+          <Button variant="outline" className="w-[180px] justify-start">
+            {selectedStatus ? (
+              <>{selectedStatus.label}</>
+            ) : (
+              <>Select metro station</>
+            )}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[200px] p-0" align="start">
-          <StatusList setOpen={setOpen} setSelectedStatus={setSelectedStatus} />
+          <StatusList selectedStatus={selectedStatus} onSelect={onSelect} />
         </PopoverContent>
       </Popover>
     );
@@ -72,13 +71,17 @@ export function ComboBoxResponsive() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="outline" className="w-[150px] justify-start">
-          {selectedStatus ? <>{selectedStatus.label}</> : <>+ Set status</>}
+        <Button variant="outline" className="w-[180px] justify-start">
+          {selectedStatus ? (
+            <>{selectedStatus.label}</>
+          ) : (
+            <>Select metro station</>
+          )}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
         <div className="mt-4 border-t">
-          <StatusList setOpen={setOpen} setSelectedStatus={setSelectedStatus} />
+          <StatusList selectedStatus={selectedStatus} onSelect={onSelect} />
         </div>
       </DrawerContent>
     </Drawer>
@@ -86,11 +89,11 @@ export function ComboBoxResponsive() {
 }
 
 function StatusList({
-  setOpen,
-  setSelectedStatus,
+  selectedStatus,
+  onSelect,
 }: {
-  setOpen: (open: boolean) => void;
-  setSelectedStatus: (status: Status | null) => void;
+  selectedStatus: Status | null;
+  onSelect: (value: string | null) => void;
 }) {
   return (
     <Command>
@@ -98,20 +101,28 @@ function StatusList({
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup>
-          {statuses.map((status) => (
+          {stations.map((status) => (
             <CommandItem
-              key={status.value}
-              value={status.value}
-              onSelect={(value) => {
-                setSelectedStatus(
-                  statuses.find((priority) => priority.value === value) || null,
-                );
-                setOpen(false);
-              }}
+              key={status.label}
+              value={status.label}
+              onSelect={onSelect}
             >
               {status.label}
             </CommandItem>
           ))}
+          {selectedStatus && (
+            <CommandItem
+              key="clear"
+              value="Clear"
+              onSelect={() => {
+                onSelect(null);
+              }}
+            >
+              <div className="flex flex-row gap-1 items-center relative ml-[-2.5px]">
+                <X size={16} /> Clear
+              </div>
+            </CommandItem>
+          )}
         </CommandGroup>
       </CommandList>
     </Command>
