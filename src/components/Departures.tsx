@@ -1,3 +1,4 @@
+import uniqBy from "lodash.uniqby";
 import { FC } from "react";
 import { useAppContext } from "@/components/AppContext";
 import { useQuery } from "@tanstack/react-query";
@@ -34,28 +35,30 @@ export const Departures: FC = () => {
   return (
     <div className="w-full">
       <div className="flex flex-col gap-2">
-        {data[0].map((departure: Departure) => {
-          const { predicted, direction } = parseDeparture(departure);
-          const secondsLeft = Math.round(
-            (predicted.getTime() - currentTime.getTime()) / 1000,
-          );
+        {uniqBy(data[0] as Departure[], (x) => x.trip.headsign).map(
+          (departure: Departure) => {
+            const { predicted, direction } = parseDeparture(departure);
+            const secondsLeft = Math.round(
+              (predicted.getTime() - currentTime.getTime()) / 1000,
+            );
 
-          return (
-            <div key={departure.trip.id}>
-              <div className="font-bold">{direction}</div>
-              <div className="flex flex-row gap-2 justify-between">
-                <div>{predicted.toLocaleTimeString()}</div>
-                <div>
-                  {secondsLeft < 0
-                    ? "Departed"
-                    : `in ~${Math.round(
-                        (predicted.getTime() - currentTime.getTime()) / 1000,
-                      )} seconds`}
+            return (
+              <div key={departure.trip.id}>
+                <div className="font-bold">{direction}</div>
+                <div className="flex flex-row gap-2 justify-between">
+                  <div>{predicted.toLocaleTimeString()}</div>
+                  <div>
+                    {secondsLeft < 0
+                      ? "Departed"
+                      : `in ~${Math.round(
+                          (predicted.getTime() - currentTime.getTime()) / 1000,
+                        )} seconds`}
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          },
+        )}
       </div>
     </div>
   );

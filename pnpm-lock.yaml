@@ -1,7 +1,7 @@
 lockfileVersion: '6.0'
 
 settings:
-  autoInstallPeers: true
+  autoInstallPeers: false
   excludeLinksFromLockfile: false
 
 dependencies:
@@ -55,6 +55,9 @@ devDependencies:
   '@tanstack/eslint-plugin-query':
     specifier: ^5.50.1
     version: 5.50.1(eslint@8.57.0)(typescript@5.5.3)
+  '@types/lodash.uniqby':
+    specifier: ^4.7.9
+    version: 4.7.9
   '@types/node':
     specifier: ^20
     version: 20.14.10
@@ -70,6 +73,9 @@ devDependencies:
   eslint-config-next:
     specifier: 14.2.4
     version: 14.2.4(eslint@8.57.0)(typescript@5.5.3)
+  lodash.uniqby:
+    specifier: ^4.7.0
+    version: 4.7.0
   postcss:
     specifier: ^8
     version: 8.4.39
@@ -1059,6 +1065,16 @@ packages:
 
   /@types/json5@0.0.29:
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
+    dev: true
+
+  /@types/lodash.uniqby@4.7.9:
+    resolution: {integrity: sha512-rjrXji/seS6BZJRgXrU2h6FqxRVufsbq/HE0Tx0SdgbtlWr2YmD/M64BlYEYYlaMcpZwy32IYVkMfUMYlPuv0w==}
+    dependencies:
+      '@types/lodash': 4.17.6
+    dev: true
+
+  /@types/lodash@4.17.6:
+    resolution: {integrity: sha512-OpXEVoCKSS3lQqjx9GGGOapBeuW5eUboYHRlHP9urXPX25IKZ6AnP5ZRxtVf63iieUbsHxLn8NQ5Nlftc6yzAA==}
     dev: true
 
   /@types/node@20.14.10:
@@ -2716,6 +2732,10 @@ packages:
 
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
+    dev: true
+
+  /lodash.uniqby@4.7.0:
+    resolution: {integrity: sha512-e/zcLx6CSbmaEgFHCA7BnoQKyCtKMxnuWrJygbwPs/AIn+IMKl66L8/s+wBUn5LRw2pZx3bUHibiV1b6aTWIww==}
     dev: true
 
   /loose-envify@1.4.0:
