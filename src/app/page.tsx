@@ -15,7 +15,7 @@ export default function Home() {
       <AppContextProvider>
         <main className="px-4">
           <div className="max-w-[358px] mx-auto flex min-h-screen w-full flex-col items-start pt-12">
-            <TypographyH1>Precise Metro Departures</TypographyH1>
+            <TypographyH1>Precise Metro Departures 🎯</TypographyH1>
             <div className="pb-4">
               <ComboBoxResponsive />
             </div>
