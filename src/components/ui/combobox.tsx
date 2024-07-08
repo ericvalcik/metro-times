@@ -20,32 +20,19 @@ import {
 } from "@/components/ui/popover";
 import { X } from "lucide-react";
 import { useAppContext } from "@/components/AppContext";
-
-type Status = {
-  value: string[];
-  label: string;
-};
-
-const stations: Status[] = [
-  {
-    value: ["U237Z101P", "U237Z102P"],
-    label: "Karlovo náměstí",
-  },
-];
+import { Stop, allStops } from "@/data/stops";
 
 export function ComboBoxResponsive() {
   const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const { stops, setStops } = useAppContext();
-  const [selectedStatus, setSelectedStatus] = React.useState<Status | null>(
-    null,
-  );
+  const [selectedStatus, setSelectedStatus] = React.useState<Stop | null>(null);
 
   const onSelect = (value: string | null) => {
     setSelectedStatus(
-      stations.find((station) => station.label === value) || null,
+      allStops.find((station) => station.label === value) || null,
     );
-    setStops(stations.find((station) => station.label === value)?.value || []);
+    setStops(allStops.find((station) => station.label === value)?.value || []);
     setOpen(false);
   };
 
@@ -92,7 +79,7 @@ function StatusList({
   selectedStatus,
   onSelect,
 }: {
-  selectedStatus: Status | null;
+  selectedStatus: Stop | null;
   onSelect: (value: string | null) => void;
 }) {
   return (
@@ -101,7 +88,7 @@ function StatusList({
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup>
-          {stations.map((status) => (
+          {allStops.map((status) => (
             <CommandItem
               key={status.label}
               value={status.label}
