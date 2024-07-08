@@ -36,17 +36,21 @@ export const Departures: FC = () => {
       <div className="flex flex-col gap-2">
         {data[0].map((departure: Departure) => {
           const { predicted, direction } = parseDeparture(departure);
+          const secondsLeft = Math.round(
+            (predicted.getTime() - currentTime.getTime()) / 1000,
+          );
+
           return (
             <div key={departure.trip.id}>
               <div className="font-bold">{direction}</div>
               <div className="flex flex-row gap-2 justify-between">
                 <div>{predicted.toLocaleTimeString()}</div>
                 <div>
-                  in ~
-                  {Math.round(
-                    (predicted.getTime() - currentTime.getTime()) / 1000,
-                  )}{" "}
-                  seconds
+                  {secondsLeft < 0
+                    ? "Departed"
+                    : `in ~${Math.round(
+                        (predicted.getTime() - currentTime.getTime()) / 1000,
+                      )} seconds`}
                 </div>
               </div>
             </div>
