@@ -5,6 +5,30 @@ export type Stop = {
 
 export const allStops: Stop[] = [
   {
+    label: "Muzeum 🟩",
+    value: ["U400Z101P", "U400Z102P"],
+  },
+  {
+    label: "Muzeum 🟥",
+    value: ["U400Z121P", "U400Z122P"],
+  },
+  {
+    label: "Florenc 🟨",
+    value: ["U689Z101P", "U689Z102P"],
+  },
+  {
+    label: "Florenc 🟥",
+    value: ["U689Z121P", "U689Z122P"],
+  },
+  {
+    label: "Můstek 🟩",
+    value: ["U1072Z101P", "U1072Z102P"],
+  },
+  {
+    label: "Můstek 🟨",
+    value: ["U1072Z121P", "U1072Z122P"],
+  },
+  {
     label: "And\u011bl",
     value: ["U1040Z101P", "U1040Z102P"],
   },

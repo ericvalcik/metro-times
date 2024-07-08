@@ -31,7 +31,6 @@ export const Departures: FC = () => {
     return null;
   }
 
-  console.log(data);
   return (
     <div className="w-full">
       <div className="flex flex-col gap-2">
