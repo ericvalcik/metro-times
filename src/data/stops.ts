@@ -4,6 +4,7 @@ export type Stop = {
   stops: string[];
   lat: number;
   lon: number;
+  distance?: number;
 };
 
 export const allStops: Stop[] = [
@@ -57,14 +58,14 @@ export const allStops: Stop[] = [
     lon: 14.409214500000001,
   },
   {
-    name: "M\u016fstek 🟩",
+    name: "M\u016fstek",
     type: "metroA",
     stops: ["U1072Z101P", "U1072Z102P"],
     lat: 50.083531199999996,
     lon: 14.424557700000001,
   },
   {
-    name: "Muzeum 🟩",
+    name: "Muzeum",
     type: "metroA",
     stops: ["U400Z101P", "U400Z102P"],
     lat: 50.07948305,
@@ -148,7 +149,7 @@ export const allStops: Stop[] = [
     lon: 14.49169075,
   },
   {
-    name: "Florenc 🟨",
+    name: "Florenc",
     type: "metroB",
     stops: ["U689Z101P", "U689Z102P"],
     lat: 50.0904825,
@@ -218,7 +219,7 @@ export const allStops: Stop[] = [
     lon: 14.330442900000001,
   },
   {
-    name: "M\u016fstek 🟨",
+    name: "M\u016fstek",
     type: "metroB",
     stops: ["U1072Z121P", "U1072Z122P"],
     lat: 50.08341025,
@@ -302,7 +303,7 @@ export const allStops: Stop[] = [
     lon: 14.4487877,
   },
   {
-    name: "Florenc 🟥",
+    name: "Florenc",
     type: "metroC",
     stops: ["U689Z121P", "U689Z122P"],
     lat: 50.09003325,
@@ -365,7 +366,7 @@ export const allStops: Stop[] = [
     lon: 14.5163069,
   },
   {
-    name: "Muzeum 🟥",
+    name: "Muzeum",
     type: "metroC",
     stops: ["U400Z121P", "U400Z122P"],
     lat: 50.080232050000006,

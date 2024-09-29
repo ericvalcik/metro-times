@@ -1,10 +1,18 @@
 "use client";
 
-import { FC, createContext, useContext, useState, ReactNode } from "react";
+import { Stop } from "@/data/stops";
+import {
+  FC,
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 
 export type AppContextType = {
-  stops: string[];
-  setStops: (stops: string[]) => void;
+  stops: Stop[];
+  setStops: (stops: Stop[]) => void;
 };
 
 const defaultAppContext: AppContextType = {
@@ -21,7 +29,11 @@ export const useAppContext = (): AppContextType => {
 export const AppContextProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [stops, setStops] = useState<string[]>([]);
+  const [stops, setStops] = useState<Stop[]>([]);
+
+  useEffect(() => {
+    console.log("CONTEXT UPDATED:", stops);
+  }, [stops]);
 
   return (
     <AppContext.Provider value={{ stops, setStops }}>

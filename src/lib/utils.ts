@@ -14,7 +14,8 @@ export function parseDeparture(departure: Departure) {
   };
 }
 
-export const distance = (coords1: Coords, coords2: Coords) => {
+// in kilometers
+export const calcDistance = (coords1: Coords, coords2: Coords) => {
   if (coords1[0] == coords2[0] && coords1[1] == coords2[1]) {
     return 0;
   } else {
@@ -33,4 +34,31 @@ export const distance = (coords1: Coords, coords2: Coords) => {
     dist = dist * 60 * 1853.15962; // a constant for meters
     return dist;
   }
+};
+
+export const parseMiliseconds = (miliseconds: number) => {
+  const seconds = Math.round(miliseconds / 1000);
+
+  if (seconds >= 3600) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = String(Math.round((seconds % 3600) / 60)).padStart(2, "0");
+    return `${hours}:${minutes} hours`;
+  }
+
+  if (seconds >= 60) {
+    const minutes = Math.floor(seconds / 60);
+    const secondsModulo = String(seconds % 60).padStart(2, "0");
+    return `${minutes}:${secondsModulo} minutes`;
+  }
+
+  return `${Math.round(miliseconds / 1000)} seconds`;
+};
+
+// arg is in meters
+export const parseDistance = (distance: number) => {
+  const roundedMeters = Math.round(distance / 10) * 10;
+  if (roundedMeters < 1000) {
+    return `~${Math.round(distance / 10) * 10} meters`;
+  }
+  return `~${Math.round(roundedMeters / 10) / 100} km`;
 };

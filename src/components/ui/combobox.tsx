@@ -29,10 +29,10 @@ export function ComboBoxResponsive() {
   const [selectedStatus, setSelectedStatus] = React.useState<Stop | null>(null);
 
   const onSelect = (value: string | null) => {
-    setSelectedStatus(
-      allStops.find((station) => station.name === value) || null,
-    );
-    setStops(allStops.find((station) => station.name === value)?.stops || []);
+    const selectedStop =
+      allStops.find((station) => station.name === value) || null;
+    setSelectedStatus(selectedStop);
+    setStops(selectedStop ? [selectedStop] : []);
     setOpen(false);
   };
 
