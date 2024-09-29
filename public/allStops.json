@@ -1,0 +1,606 @@
+[
+  {
+    "name": "Bo\u0159islavka",
+    "type": "metroA",
+    "stops": [
+      "U157Z101P",
+      "U157Z102P"
+    ],
+    "lat": 50.098341000000005,
+    "lon": 14.362833
+  },
+  {
+    "name": "Dejvick\u00e1",
+    "type": "metroA",
+    "stops": [
+      "U321Z101P",
+      "U321Z102P"
+    ],
+    "lat": 50.10047195,
+    "lon": 14.3931756
+  },
+  {
+    "name": "Depo Hostiva\u0159",
+    "type": "metroA",
+    "stops": [
+      "U1071Z101P",
+      "U1071Z102P"
+    ],
+    "lat": 50.0755329,
+    "lon": 14.51538465
+  },
+  {
+    "name": "Flora",
+    "type": "metroA",
+    "stops": [
+      "U118Z101P",
+      "U118Z102P"
+    ],
+    "lat": 50.07827805,
+    "lon": 14.4625931
+  },
+  {
+    "name": "Hrad\u010dansk\u00e1",
+    "type": "metroA",
+    "stops": [
+      "U163Z101P",
+      "U163Z102P"
+    ],
+    "lat": 50.097441849999996,
+    "lon": 14.403161050000001
+  },
+  {
+    "name": "Ji\u0159\u00edho z Pod\u011bbrad",
+    "type": "metroA",
+    "stops": [
+      "U209Z101P",
+      "U209Z102P"
+    ],
+    "lat": 50.07772,
+    "lon": 14.450751799999999
+  },
+  {
+    "name": "Malostransk\u00e1",
+    "type": "metroA",
+    "stops": [
+      "U360Z101P",
+      "U360Z102P"
+    ],
+    "lat": 50.091724400000004,
+    "lon": 14.409214500000001
+  },
+  {
+    "name": "M\u016fstek",
+    "type": "metroA",
+    "stops": [
+      "U1072Z101P",
+      "U1072Z102P"
+    ],
+    "lat": 50.083531199999996,
+    "lon": 14.424557700000001
+  },
+  {
+    "name": "Muzeum",
+    "type": "metroA",
+    "stops": [
+      "U400Z101P",
+      "U400Z102P"
+    ],
+    "lat": 50.07948305,
+    "lon": 14.431670350000001
+  },
+  {
+    "name": "N\u00e1dra\u017e\u00ed Veleslav\u00edn",
+    "type": "metroA",
+    "stops": [
+      "U462Z101P",
+      "U462Z102P"
+    ],
+    "lat": 50.09586145,
+    "lon": 14.348330050000001
+  },
+  {
+    "name": "N\u00e1m\u011bst\u00ed M\u00edru",
+    "type": "metroA",
+    "stops": [
+      "U476Z101P",
+      "U476Z102P"
+    ],
+    "lat": 50.07531165,
+    "lon": 14.43978165
+  },
+  {
+    "name": "Nemocnice Motol",
+    "type": "metroA",
+    "stops": [
+      "U306Z101P"
+    ],
+    "lat": 50.0755539,
+    "lon": 14.3421755
+  },
+  {
+    "name": "Pet\u0159iny",
+    "type": "metroA",
+    "stops": [
+      "U507Z101P",
+      "U507Z102P"
+    ],
+    "lat": 50.086842149999995,
+    "lon": 14.3449392
+  },
+  {
+    "name": "Skalka",
+    "type": "metroA",
+    "stops": [
+      "U953Z101P",
+      "U953Z102P"
+    ],
+    "lat": 50.06842995,
+    "lon": 14.50786365
+  },
+  {
+    "name": "Starom\u011bstsk\u00e1",
+    "type": "metroA",
+    "stops": [
+      "U703Z101P",
+      "U703Z102P"
+    ],
+    "lat": 50.0882026,
+    "lon": 14.4176717
+  },
+  {
+    "name": "Stra\u0161nick\u00e1",
+    "type": "metroA",
+    "stops": [
+      "U713Z101P",
+      "U713Z102P"
+    ],
+    "lat": 50.0730705,
+    "lon": 14.4905152
+  },
+  {
+    "name": "\u017delivsk\u00e9ho",
+    "type": "metroA",
+    "stops": [
+      "U921Z101P",
+      "U921Z102P"
+    ],
+    "lat": 50.0782829,
+    "lon": 14.4754801
+  },
+  {
+    "name": "And\u011bl",
+    "type": "metroB",
+    "stops": [
+      "U1040Z101P",
+      "U1040Z102P"
+    ],
+    "lat": 50.06995,
+    "lon": 14.403769
+  },
+  {
+    "name": "\u010cern\u00fd Most",
+    "type": "metroB",
+    "stops": [
+      "U897Z101P"
+    ],
+    "lat": 50.1088753,
+    "lon": 14.57613
+  },
+  {
+    "name": "\u010ceskomoravsk\u00e1",
+    "type": "metroB",
+    "stops": [
+      "U510Z101P",
+      "U510Z102P"
+    ],
+    "lat": 50.10616285,
+    "lon": 14.49169075
+  },
+  {
+    "name": "Florenc",
+    "type": "metroB",
+    "stops": [
+      "U689Z101P",
+      "U689Z102P"
+    ],
+    "lat": 50.0904825,
+    "lon": 14.437647349999999
+  },
+  {
+    "name": "Hloub\u011bt\u00edn",
+    "type": "metroB",
+    "stops": [
+      "U135Z101P",
+      "U135Z102P"
+    ],
+    "lat": 50.10668795,
+    "lon": 14.5363913
+  },
+  {
+    "name": "H\u016frka",
+    "type": "metroB",
+    "stops": [
+      "U1154Z101P",
+      "U1154Z102P"
+    ],
+    "lat": 50.05000795,
+    "lon": 14.3427925
+  },
+  {
+    "name": "Invalidovna",
+    "type": "metroB",
+    "stops": [
+      "U655Z101P",
+      "U655Z102P"
+    ],
+    "lat": 50.09679985,
+    "lon": 14.46315285
+  },
+  {
+    "name": "Jinonice",
+    "type": "metroB",
+    "stops": [
+      "U685Z101P",
+      "U685Z102P"
+    ],
+    "lat": 50.05420685,
+    "lon": 14.36991405
+  },
+  {
+    "name": "Karlovo n\u00e1m\u011bst\u00ed",
+    "type": "metroB",
+    "stops": [
+      "U237Z101P",
+      "U237Z102P"
+    ],
+    "lat": 50.0745907,
+    "lon": 14.416979
+  },
+  {
+    "name": "Kolbenova",
+    "type": "metroB",
+    "stops": [
+      "U75Z101P",
+      "U75Z102P"
+    ],
+    "lat": 50.110395,
+    "lon": 14.5163989
+  },
+  {
+    "name": "K\u0159i\u017e\u00edkova",
+    "type": "metroB",
+    "stops": [
+      "U758Z101P",
+      "U758Z102P"
+    ],
+    "lat": 50.0925472,
+    "lon": 14.451341150000001
+  },
+  {
+    "name": "Luka",
+    "type": "metroB",
+    "stops": [
+      "U1007Z101P",
+      "U1007Z102P"
+    ],
+    "lat": 50.0456722,
+    "lon": 14.32134195
+  },
+  {
+    "name": "Lu\u017einy",
+    "type": "metroB",
+    "stops": [
+      "U258Z101P",
+      "U258Z102P"
+    ],
+    "lat": 50.04449685,
+    "lon": 14.330442900000001
+  },
+  {
+    "name": "M\u016fstek",
+    "type": "metroB",
+    "stops": [
+      "U1072Z121P",
+      "U1072Z122P"
+    ],
+    "lat": 50.08341025,
+    "lon": 14.423388
+  },
+  {
+    "name": "N\u00e1m\u011bst\u00ed Republiky",
+    "type": "metroB",
+    "stops": [
+      "U480Z101P",
+      "U480Z102P"
+    ],
+    "lat": 50.08882525,
+    "lon": 14.43059875
+  },
+  {
+    "name": "N\u00e1rodn\u00ed t\u0159\u00edda",
+    "type": "metroB",
+    "stops": [
+      "U539Z101P",
+      "U539Z102P"
+    ],
+    "lat": 50.07975005,
+    "lon": 14.42029475
+  },
+  {
+    "name": "Nov\u00e9 Butovice",
+    "type": "metroB",
+    "stops": [
+      "U602Z101P",
+      "U602Z102P"
+    ],
+    "lat": 50.05084185,
+    "lon": 14.352149950000001
+  },
+  {
+    "name": "Palmovka",
+    "type": "metroB",
+    "stops": [
+      "U529Z101P",
+      "U529Z102P"
+    ],
+    "lat": 50.103982900000005,
+    "lon": 14.4747968
+  },
+  {
+    "name": "Radlick\u00e1",
+    "type": "metroB",
+    "stops": [
+      "U957Z101P"
+    ],
+    "lat": 50.0582962,
+    "lon": 14.3871145
+  },
+  {
+    "name": "Rajsk\u00e1 zahrada",
+    "type": "metroB",
+    "stops": [
+      "U818Z101P",
+      "U818Z102P"
+    ],
+    "lat": 50.10684775,
+    "lon": 14.56050445
+  },
+  {
+    "name": "Sm\u00edchovsk\u00e9 n\u00e1dra\u017e\u00ed",
+    "type": "metroB",
+    "stops": [
+      "U458Z101P",
+      "U458Z102P"
+    ],
+    "lat": 50.06130695,
+    "lon": 14.40911105
+  },
+  {
+    "name": "Stod\u016flky",
+    "type": "metroB",
+    "stops": [
+      "U1140Z101P",
+      "U1140Z102P"
+    ],
+    "lat": 50.04670145,
+    "lon": 14.30654
+  },
+  {
+    "name": "Vyso\u010dansk\u00e1",
+    "type": "metroB",
+    "stops": [
+      "U474Z101P",
+      "U474Z102P"
+    ],
+    "lat": 50.110065,
+    "lon": 14.50108195
+  },
+  {
+    "name": "Zli\u010d\u00edn",
+    "type": "metroB",
+    "stops": [
+      "U1141Z102P"
+    ],
+    "lat": 50.05284,
+    "lon": 14.2914
+  },
+  {
+    "name": "Bud\u011bjovick\u00e1",
+    "type": "metroC",
+    "stops": [
+      "U50Z101P",
+      "U50Z102P"
+    ],
+    "lat": 50.04441105,
+    "lon": 14.4487877
+  },
+  {
+    "name": "Florenc",
+    "type": "metroC",
+    "stops": [
+      "U689Z121P",
+      "U689Z122P"
+    ],
+    "lat": 50.09003325,
+    "lon": 14.43917225
+  },
+  {
+    "name": "H\u00e1je",
+    "type": "metroC",
+    "stops": [
+      "U286Z101P"
+    ],
+    "lat": 50.0307579,
+    "lon": 14.5262737
+  },
+  {
+    "name": "Hlavn\u00ed n\u00e1dra\u017e\u00ed",
+    "type": "metroC",
+    "stops": [
+      "U142Z101P",
+      "U142Z102P"
+    ],
+    "lat": 50.0835056,
+    "lon": 14.434139250000001
+  },
+  {
+    "name": "Chodov",
+    "type": "metroC",
+    "stops": [
+      "U52Z101P",
+      "U52Z102P"
+    ],
+    "lat": 50.0316715,
+    "lon": 14.4909626
+  },
+  {
+    "name": "I. P. Pavlova",
+    "type": "metroC",
+    "stops": [
+      "U190Z101P",
+      "U190Z102P"
+    ],
+    "lat": 50.0743324,
+    "lon": 14.430310250000002
+  },
+  {
+    "name": "Ka\u010derov",
+    "type": "metroC",
+    "stops": [
+      "U228Z101P",
+      "U228Z102P"
+    ],
+    "lat": 50.0418373,
+    "lon": 14.459309999999999
+  },
+  {
+    "name": "Kobylisy",
+    "type": "metroC",
+    "stops": [
+      "U675Z101P",
+      "U675Z102P"
+    ],
+    "lat": 50.1241188,
+    "lon": 14.4542556
+  },
+  {
+    "name": "L\u00e1dv\u00ed",
+    "type": "metroC",
+    "stops": [
+      "U78Z101P",
+      "U78Z102P"
+    ],
+    "lat": 50.126590750000005,
+    "lon": 14.46945285
+  },
+  {
+    "name": "Let\u0148any",
+    "type": "metroC",
+    "stops": [
+      "U1000Z102P"
+    ],
+    "lat": 50.1257935,
+    "lon": 14.5163069
+  },
+  {
+    "name": "Muzeum",
+    "type": "metroC",
+    "stops": [
+      "U400Z121P",
+      "U400Z122P"
+    ],
+    "lat": 50.080232050000006,
+    "lon": 14.4310975
+  },
+  {
+    "name": "N\u00e1dra\u017e\u00ed Hole\u0161ovice",
+    "type": "metroC",
+    "stops": [
+      "U115Z101P",
+      "U115Z102P"
+    ],
+    "lat": 50.108915350000004,
+    "lon": 14.44007395
+  },
+  {
+    "name": "Opatov",
+    "type": "metroC",
+    "stops": [
+      "U106Z101P",
+      "U106Z102P"
+    ],
+    "lat": 50.02788925,
+    "lon": 14.5091925
+  },
+  {
+    "name": "Pankr\u00e1c",
+    "type": "metroC",
+    "stops": [
+      "U385Z101P",
+      "U385Z102P"
+    ],
+    "lat": 50.0510273,
+    "lon": 14.43968405
+  },
+  {
+    "name": "Pra\u017esk\u00e9ho povst\u00e1n\u00ed",
+    "type": "metroC",
+    "stops": [
+      "U597Z101P",
+      "U597Z102P"
+    ],
+    "lat": 50.05685615,
+    "lon": 14.4333129
+  },
+  {
+    "name": "Prosek",
+    "type": "metroC",
+    "stops": [
+      "U603Z101P",
+      "U603Z102P"
+    ],
+    "lat": 50.119245,
+    "lon": 14.498608149999999
+  },
+  {
+    "name": "Roztyly",
+    "type": "metroC",
+    "stops": [
+      "U601Z101P",
+      "U601Z102P"
+    ],
+    "lat": 50.03767015,
+    "lon": 14.47674
+  },
+  {
+    "name": "St\u0159\u00ed\u017ekov",
+    "type": "metroC",
+    "stops": [
+      "U332Z101P",
+      "U332Z102P"
+    ],
+    "lat": 50.126171299999996,
+    "lon": 14.48954485
+  },
+  {
+    "name": "Vltavsk\u00e1",
+    "type": "metroC",
+    "stops": [
+      "U100Z101P",
+      "U100Z102P"
+    ],
+    "lat": 50.10029795,
+    "lon": 14.4384935
+  },
+  {
+    "name": "Vy\u0161ehrad",
+    "type": "metroC",
+    "stops": [
+      "U527Z101P",
+      "U527Z102P"
+    ],
+    "lat": 50.063140000000004,
+    "lon": 14.43052105
+  }
+]
