@@ -7,6 +7,7 @@ import { AppContextProvider } from "@/components/AppContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Departures } from "@/components/Departures";
 import { TypographyH1 } from "@/components/ui/typography";
+import { useGeolocation } from "@/hooks/use-geolocation";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -14,26 +15,7 @@ const queryClient = new QueryClient();
 type Coords = [number, number];
 
 export default function Home() {
-  const [coords, setCoords] = useState<Coords | null>(null);
-
-  const onSuccess = (position: GeolocationPosition) => {
-    setCoords([position.coords.latitude, position.coords.longitude]);
-  };
-
-  const onError = (error: GeolocationPositionError) => {
-    console.error(error);
-  };
-
-  useEffect(() => {
-    if (navigator.geolocation) {
-      console.log(
-        "Geolocation is supported by this browser. Getting location...",
-      );
-      navigator.geolocation.getCurrentPosition(onSuccess, onError);
-    } else {
-      console.error("Geolocation is not supported by this browser.");
-    }
-  }, []);
+  const coords = useGeolocation();
 
   return (
     <QueryClientProvider client={queryClient}>

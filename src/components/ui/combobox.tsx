@@ -25,14 +25,14 @@ import { Stop, allStops } from "@/data/stops";
 export function ComboBoxResponsive() {
   const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  const { stops, setStops } = useAppContext();
+  const { setStops } = useAppContext();
   const [selectedStatus, setSelectedStatus] = React.useState<Stop | null>(null);
 
   const onSelect = (value: string | null) => {
     setSelectedStatus(
-      allStops.find((station) => station.label === value) || null,
+      allStops.find((station) => station.name === value) || null,
     );
-    setStops(allStops.find((station) => station.label === value)?.value || []);
+    setStops(allStops.find((station) => station.name === value)?.stops || []);
     setOpen(false);
   };
 
@@ -42,7 +42,7 @@ export function ComboBoxResponsive() {
         <PopoverTrigger asChild>
           <Button variant="outline" className="w-[180px] justify-start">
             {selectedStatus ? (
-              <>{selectedStatus.label}</>
+              <>{selectedStatus.name}</>
             ) : (
               <>Select metro station</>
             )}
@@ -60,7 +60,7 @@ export function ComboBoxResponsive() {
       <DrawerTrigger asChild>
         <Button variant="outline" className="w-[180px] justify-start">
           {selectedStatus ? (
-            <>{selectedStatus.label}</>
+            <>{selectedStatus.name}</>
           ) : (
             <>Select metro station</>
           )}
@@ -90,11 +90,11 @@ function StatusList({
         <CommandGroup>
           {allStops.map((status) => (
             <CommandItem
-              key={status.label}
-              value={status.label}
+              key={status.name}
+              value={status.name}
               onSelect={onSelect}
             >
-              {status.label}
+              {status.name}
             </CommandItem>
           ))}
           {selectedStatus && (
