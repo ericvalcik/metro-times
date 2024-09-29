@@ -1,3 +1,4 @@
+import uniqBy from "lodash.uniqby";
 import { FC, useEffect } from "react";
 import { useAppContext } from "@/components/AppContext";
 import { useQuery } from "@tanstack/react-query";
@@ -80,8 +81,11 @@ const StopDepartureGroup: FC<{
   allDepartures: DepartureType[];
   stop: Stop;
 }> = ({ allDepartures, stop }) => {
-  const stopDepartures = allDepartures.filter((departure) =>
-    stop.stops.includes(departure.stop?.id),
+  const stopDepartures = uniqBy(
+    allDepartures.filter((departure) =>
+      stop.stops.includes(departure.stop?.id),
+    ),
+    (x) => x.trip.headsign,
   );
 
   if (stopDepartures.length === 0) {
