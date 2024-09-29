@@ -93,11 +93,13 @@ const StopDepartureGroup: FC<{
   }
 
   return (
-    <div className="rounded-2xl border-2 border-solid border-slate-700 py-2 pb-4 px-6 flex flex-col gap-2">
-      <MetroTag type={stop.type} className="relative top-1.5 -left-4" />
-      <div className="flex flex-row justify-between items-center pb-4">
-        <TypographyH3>{stop.name}</TypographyH3>
-        {stop?.distance ? <p>{parseDistance(stop.distance)}</p> : null}
+    <div className="rounded-2xl border-2 border-solid border-slate-700 pt-[4px] pb-4 px-6 flex flex-col gap-2">
+      <div className="flex flex-col">
+        <MetroTag type={stop.type} className="relative -left-[20px]" />
+        <div className="flex flex-row justify-between items-center pb-4">
+          <TypographyH3>{stop.name}</TypographyH3>
+          {stop?.distance ? <p>{parseDistance(stop.distance)}</p> : null}
+        </div>
       </div>
       {stopDepartures.map((departure, index) => (
         <Departure key={index} departure={departure} />
