@@ -10,6 +10,7 @@ export const fetchStops = async ({ queryKey }: QueryFunctionContext) => {
       method: "GET",
       headers: {
         Accept: "application/json",
+        "X-Access-Token": process.env.NEXT_PUBLIC_API_KEY as string,
       },
     },
   );
