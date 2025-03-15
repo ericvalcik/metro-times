@@ -14,7 +14,8 @@ import { useCurrentTime } from "@/hooks/use-current-time";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { allStops, Stop } from "@/data/stops";
 import { TypographyH3 } from "@/components/ui/typography";
-import { MetroTag } from "@/components/Tag";
+import { MetroTag, typeToColor } from "@/components/Tag";
+import MetroIcon from "../../public/icons/metro.svg";
 
 export const Departures: FC = () => {
   const { stops, setStops } = useAppContext();
@@ -39,7 +40,7 @@ export const Departures: FC = () => {
       })
       .sort((a, b) => a.distance - b.distance)
       .slice(0, 5);
-    setStops(stops);
+    setStops([...stops]);
   }, [coords, setStops]);
 
   if (!coords) {
@@ -85,7 +86,7 @@ const StopDepartureGroup: FC<{
     allDepartures.filter((departure) =>
       stop.stops.includes(departure.stop?.id),
     ),
-    (x) => x.trip.headsign,
+    (x: any) => x.trip.headsign,
   );
 
   if (stopDepartures.length === 0) {
@@ -93,15 +94,17 @@ const StopDepartureGroup: FC<{
   }
 
   return (
-    <div className="rounded-2xl border-2 border-solid border-slate-700 pt-[4px] pb-4 px-6 flex flex-col gap-2">
+    <div className="rounded-3xl p-[22px] h-[158px] flex flex-col gap-2 bg-[#131313] text-white">
       <div className="flex flex-col">
-        <MetroTag type={stop.type} className="relative -left-[20px]" />
-        <div className="flex flex-row justify-between items-center pb-4">
+        <div className="flex flex-row gap-4 items-center pb-[19px]">
+          <div style={{ color: typeToColor[stop.type] }}>
+            <MetroIcon width={21} height={22} />
+          </div>
           <TypographyH3>{stop.name}</TypographyH3>
-          {stop?.distance ? <p>{parseDistance(stop.distance)}</p> : null}
+          {/* {stop?.distance ? <p>{parseDistance(stop.distance)}</p> : null} */}
         </div>
       </div>
-      {stopDepartures.map((departure, index) => (
+      {stopDepartures.map((departure: any, index: number) => (
         <Departure key={index} departure={departure} />
       ))}
     </div>
@@ -118,11 +121,11 @@ const Departure: FC<{ departure: DepartureType }> = ({ departure }) => {
   return (
     <div key={departure.trip.id}>
       <div className="flex flex-row gap-2 justify-between">
-        <div className="font-semibold">{direction}</div>
+        <div>{direction}</div>
         <div>
           {secondsLeft < 0
             ? "Departed"
-            : `in ~${parseMiliseconds(predicted.getTime() - currentTime.getTime())}`}
+            : `${parseMiliseconds(predicted.getTime() - currentTime.getTime())}`}
         </div>
       </div>
     </div>

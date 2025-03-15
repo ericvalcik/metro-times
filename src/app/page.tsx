@@ -30,8 +30,8 @@ export default function Home() {
     <QueryClientProvider client={queryClient}>
       <AppContextProvider>
         <main className="px-4 pb-6">
-          <div className="max-w-[358px] mx-auto flex min-h-screen w-full flex-col items-start pt-12">
-            <TypographyH1>Precise Metro Departures 🎯</TypographyH1>
+          <div className="max-w-[338px] mx-auto flex min-h-screen w-full flex-col items-start pt-12">
+            {/* <TypographyH1>Departures</TypographyH1> */}
             {/* <pre className="py-4">{JSON.stringify(coords, null, 2)}</pre> */}
             {/* <pre className="py-4">{JSON.stringify(distances, null, 2)}</pre> */}
             {/* <div className="pb-4">

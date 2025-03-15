@@ -39,19 +39,9 @@ export const calcDistance = (coords1: Coords, coords2: Coords) => {
 export const parseMiliseconds = (miliseconds: number) => {
   const seconds = Math.round(miliseconds / 1000);
 
-  if (seconds >= 3600) {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = String(Math.round((seconds % 3600) / 60)).padStart(2, "0");
-    return `${hours}:${minutes} hours`;
-  }
-
-  if (seconds >= 60) {
-    const minutes = Math.floor(seconds / 60);
-    const secondsModulo = String(seconds % 60).padStart(2, "0");
-    return `${minutes}:${secondsModulo} minutes`;
-  }
-
-  return `${Math.round(miliseconds / 1000)} seconds`;
+  const minutes = Math.floor(seconds / 60);
+  const secondsModulo = String(seconds % 60).padStart(2, "0");
+  return `${minutes}:${secondsModulo}`;
 };
 
 // arg is in meters

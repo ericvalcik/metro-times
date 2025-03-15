@@ -9,7 +9,5 @@ export const TypographyH1: FC<{ children: ReactNode }> = ({ children }) => {
 };
 
 export const TypographyH3: FC<{ children: ReactNode }> = ({ children }) => {
-  return (
-    <h3 className="text-lg font-bold tracking-tight lg:text-xl">{children}</h3>
-  );
+  return <h3 className="text-base font-semibold">{children}</h3>;
 };

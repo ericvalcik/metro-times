@@ -6,10 +6,10 @@ type MetroTagProps = {
   className?: string;
 };
 
-const typeToColor: Record<MetroTagProps["type"], string> = {
-  metroA: "#078243",
-  metroB: "#FAD203",
-  metroC: "#EA1220",
+export const typeToColor: Record<MetroTagProps["type"], string> = {
+  metroA: "#50AF32",
+  metroB: "#FFD500",
+  metroC: "#E63024",
 };
 
 const typeToName: Record<MetroTagProps["type"], string> = {
