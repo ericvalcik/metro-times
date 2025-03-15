@@ -124,7 +124,7 @@ const Departure: FC<{ departure: DepartureType }> = ({ departure }) => {
         <div>{direction}</div>
         <div>
           {secondsLeft < 0
-            ? "Departed"
+            ? "Departing"
             : `${parseMiliseconds(predicted.getTime() - currentTime.getTime())}`}
         </div>
       </div>
