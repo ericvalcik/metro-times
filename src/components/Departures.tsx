@@ -94,7 +94,7 @@ const StopDepartureGroup: FC<{
   }
 
   return (
-    <div className="rounded-3xl p-[22px] h-[158px] flex flex-col gap-2 bg-[#131313] text-white">
+    <div className="rounded-3xl p-[22px] flex flex-col gap-2 bg-[#131313] text-white">
       <div className="flex flex-col">
         <div className="flex flex-row gap-4 items-center pb-[19px]">
           <div style={{ color: typeToColor[stop.type] }}>
