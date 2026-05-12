@@ -6,13 +6,13 @@ Port the existing Next.js web app to a native iOS app using Expo + React Native,
 
 ## Visual contract (the source of truth for "looks the same")
 
-Every phase's verification compares against the current web app running at `pnpm dev` (open in Safari on iPhone or Chrome devtools at iPhone 14 width — 390px). The non-negotiables:
+Every phase's verification compares against the current web app running at `pnpm dev` (open in Safari on iPhone or Chrome devtools at iPhone 14 width — 390px). The non-negotiables (expressed as React Native style values):
 
-- **Background**: pure black page background; departure cards are `#131313`.
-- **Card shape**: `rounded-3xl` (24px radius), `p-[22px]` interior padding, `gap-2` between rows, `gap-4` between cards.
-- **Card width**: content column is `max-w-[338px]`, centered, with `px-4` page padding and `pt-12` top padding.
-- **Typography**: IBM Plex Mono, weights 400/500/600/700. Stop name uses `text-base font-semibold`. Departure rows and countdown use the default body size in IBM Plex Mono. Text color white on cards.
-- **Metro icon**: the SVG from `public/icons/metro.svg` rendered at `width=21 height=22`, color driven by the line type (`metroA` = `#50AF32`, `metroB` = `#FFD500`, `metroC` = `#E63024`). Icon sits left of the stop name with `gap-4` and `pb-[19px]` below.
+- **Background**: pure black page background (`#000000`); departure cards are `#131313`.
+- **Card shape**: `borderRadius: 24`, `padding: 22`, `gap: 8` between rows, `gap: 16` between cards.
+- **Card width**: content column is `maxWidth: 338`, centered, with `paddingHorizontal: 16` page padding and `paddingTop: 48` top padding (below the safe-area inset).
+- **Typography**: IBM Plex Mono, weights 400/500/600/700. Stop name is `fontSize: 16, fontWeight: '600'`. Departure rows and countdown use `fontSize: 16, fontWeight: '400'`. Text color `#FFFFFF` on cards.
+- **Metro icon**: the SVG from `public/icons/metro.svg` rendered at `width={21} height={22}`, color driven by the line type (`metroA` = `#50AF32`, `metroB` = `#FFD500`, `metroC` = `#E63024`). Icon sits left of the stop name with `gap: 16` and `paddingBottom: 19` below the header row.
 - **Departure row**: direction (headsign) left, countdown right (`mm:ss` format from `parseMiliseconds`); when `secondsLeft < 0` the right side reads `Departing`.
 - **Polling cadence**: visually, the countdown ticks every second (driven by `useCurrentTime`), and the data refreshes every 2s — the user sees a smooth count-down between refetches.
 
@@ -20,24 +20,31 @@ Take a reference screenshot of the current web app at the start of Phase 1 and s
 
 ---
 
-## Phase 1 — Scaffold
+## Phase 1 — SVG support, black root, and tab rename
 
-**What:** Stand up a fresh Expo app inside this repo at `mobile/`, with Tailwind v4 + NativeWind v5 wired up. Keep the Next.js app untouched at the repo root so we can run both side-by-side.
+**What:** The Expo app is already bootstrapped at `mobile/` with an `expo-router` tabs scaffold. Wire SVG-as-component support, force a black background so there's no white flash, and rename the existing tabs to **Times** and **Stations**. No Tailwind, no NativeWind — we'll style everything with React Native's `style` prop (inline objects + `StyleSheet.create`) from here on.
 
 **Steps:**
 1. Take and save the reference screenshot: open the running web app on iPhone-width (390px), screenshot the departures screen with at least one card visible, save as `mobile/reference-web.png`.
-2. From repo root: `pnpm create expo-app@latest mobile -t default` (TypeScript + Expo Router).
-3. `cd mobile` and install: NativeWind v5, Tailwind v4, react-native-css, TanStack Query, expo-location, expo-font, react-native-svg, react-native-svg-transformer, lucide-react-native.
-4. Wire Tailwind v4 per the `expo:expo-tailwind-setup` skill: `tailwind.config.js`, `global.css`, `metro.config.js` (SVG transformer + NativeWind), `babel.config.js`.
-5. Configure `metro.config.js` so `*.svg` files import as React components via `react-native-svg-transformer`.
-6. Copy the relevant color extensions from the current `tailwind.config.ts` into the new Expo Tailwind config (we won't need the shadcn HSL variables — those are only used by removed components).
-7. Set the root background to black in `app/_layout.tsx` so there's no white flash.
+2. In `mobile/`, install: `react-native-svg`, `react-native-svg-transformer`. Pin `react-native-svg` to the version Expo expects (`pnpm exec expo install --check` will surface the right pin).
+3. Configure `metro.config.js` so `*.svg` files import as React components via `react-native-svg-transformer` (swap `svg` from `assetExts` to `sourceExts`, set `babelTransformerPath` to `react-native-svg-transformer/expo`).
+4. Add a `*.svg` module declaration (`src/types/svg.d.ts`) so TypeScript treats imported SVGs as `React.FC<SvgProps>`. Include it in `tsconfig.json`.
+5. Copy `public/icons/metro.svg` to `mobile/assets/icons/metro.svg`. Drop the `fill="currentColor"` attribute on the inner `<path>` so the imported component's `fill` prop propagates to the path (react-native-svg doesn't resolve `currentColor` like the browser).
+6. Force a black background everywhere so there's no white flash:
+   - Set the root view / safe-area background to `#000000`.
+   - Set the navigator's `screenOptions.contentStyle.backgroundColor` (or equivalent for the existing tab layout) to `#000000`.
+   - Set the tab bar background to `#000000` with white-ish active tint.
+7. Rename the existing two tabs to **Times** and **Stations**:
+   - `Times` is the current `index.tsx` (departures will live here in Phase 4).
+   - `Stations` replaces the current `explore.tsx`. For now it can render a single centered `<Text style={{ color: '#FFFFFF' }}>Stations</Text>` placeholder — content lands later.
+   - Update the tab labels, the route filenames if needed (`src/app/(tabs)/...` or wherever the scaffold puts them), and any references in `src/components/app-tabs.tsx`.
 
 **Verification (must all pass before moving to Phase 2):**
-- `pnpm expo start` boots without errors; pressing `i` opens the iOS simulator and renders a blank black screen with no white flash on launch.
-- A throwaway `<Text className="text-white text-base">hello</Text>` placed in `app/index.tsx` renders white-on-black at the expected size (proves NativeWind is wired).
-- An import of `metro.svg` (copied to `mobile/assets/icons/metro.svg`) renders as a component via `<MetroIcon width={21} height={22} fill="#50AF32" />` — green metro icon visible.
+- `pnpm expo start` boots without errors; pressing `i` opens the iOS simulator and lands on the **Times** tab with a pure-black background and no white flash on launch.
+- The tab bar shows two tabs labeled **Times** and **Stations**; tapping **Stations** navigates to the placeholder screen, also black.
+- An import of `metro.svg` rendered inline as `<MetroIcon width={21} height={22} fill="#50AF32" />` on the Times screen shows a green metro icon. Swapping `fill` to `"#FFD500"` and `"#E63024"` renders yellow and red respectively (sanity check that the line colors will work in Phase 4).
 - `mobile/reference-web.png` exists and shows at least one departure card from the current web app.
+- `pnpm tsc --noEmit` from `mobile/` is clean.
 
 ---
 
@@ -49,7 +56,7 @@ Take a reference screenshot of the current web app at the start of Phase 1 and s
 1. Copy `src/types.ts` → `mobile/types.ts` (unchanged).
 2. Copy `src/data/stops.ts` → `mobile/data/stops.ts` (unchanged).
 3. Copy `src/hooks/use-current-time.tsx` → `mobile/hooks/use-current-time.ts` (unchanged; uses only `setInterval`).
-4. Copy `src/lib/utils.ts` → `mobile/lib/utils.ts`. **Drop** the `cn`/`twMerge`/`clsx` export — NativeWind handles class merging via its own runtime. **Keep** `calcDistance`, `parseDeparture`, `parseMiliseconds`, `parseDistance`.
+4. Copy `src/lib/utils.ts` → `mobile/lib/utils.ts`. **Drop** the `cn`/`twMerge`/`clsx` export — we're not using className anywhere. **Keep** `calcDistance`, `parseDeparture`, `parseMiliseconds`, `parseDistance`.
 5. Copy `src/api/fetchStops.ts` → `mobile/api/fetchStops.ts`. Replace `process.env.NEXT_PUBLIC_API_KEY` with `Constants.expoConfig?.extra?.apiKey` and wire `app.config.ts` to read from `.env` so the key is injected at build time. Add `mobile/.env` with `EXPO_PUBLIC_API_KEY=...` (or use the `extra` field — pick one and stick with it).
 6. Copy `src/components/AppContext.tsx` → `mobile/components/AppContext.tsx` (unchanged; pure React).
 
@@ -72,7 +79,7 @@ Take a reference screenshot of the current web app at the start of Phase 1 and s
    - Keep the **dev-mode Myslbach fallback** (`[50.07777384729586, 14.417414782736316]`) so the simulator works without permission grants — gate it on `__DEV__`.
    - Return type stays `Coords | null` so callers don't change.
 2. Add the location permission strings to `app.config.ts` under `ios.infoPlist.NSLocationWhenInUseUsageDescription` with a short user-facing reason.
-3. Verify `mobile/assets/icons/metro.svg` imports as a component (already validated in Phase 1) and accepts a `fill` prop. Note: SVG `currentColor` does not propagate in `react-native-svg` the way it does in the browser — we pass the line color via the `fill` prop on `<MetroIcon fill={typeToColor[stop.type]} />` instead of wrapping in a colored `<View>`.
+3. Verify `mobile/assets/icons/metro.svg` imports as a component (already validated in Phase 1) and accepts a `fill` prop. Note: SVG `currentColor` does not propagate in `react-native-svg` the way it does in the browser — we drop `fill="currentColor"` from the path in Phase 1 and pass the line color via the `fill` prop on `<MetroIcon fill={typeToColor[stop.type]} />`.
 
 **Verification:**
 - On a real iPhone (via Expo Go or dev client), the app prompts for location permission on first launch with the string from `app.config.ts`.
@@ -84,23 +91,38 @@ Take a reference screenshot of the current web app at the start of Phase 1 and s
 
 ## Phase 4 — Build the UI (this is the look-the-same phase)
 
-**What:** Port `Departures.tsx` and `Tag.tsx` to React Native, achieving pixel-level parity with the reference screenshot.
+**What:** Port `Departures.tsx` and `Tag.tsx` to React Native using only the `style` prop (inline objects and `StyleSheet.create`), achieving pixel-level parity with the reference screenshot.
 
 **DOM → RN element mapping (apply consistently):**
 - `<div>` (layout) → `<View>`
 - `<div>` (text container with text directly inside) → `<View>` wrapping `<Text>` for the text
 - `<p>`, `<h1>`, `<h3>`, raw text → `<Text>` (text **must** be inside `<Text>` in RN, not bare in a `<View>`)
-- `flex flex-row` → already the RN default (View defaults to `flex-direction: column` though, opposite of web — be explicit with `flex-row` on rows)
-- `gap-*`, `padding`, `rounded-*`, color classes → carry over via NativeWind
+- Tailwind classes from the web → equivalent `style` properties. View defaults to `flex-direction: 'column'` (opposite of web's `flex-direction: row` default), so be explicit with `flexDirection: 'row'` for horizontal rows.
+
+**Style equivalents (use these consistently — define once in a `StyleSheet.create` block per component):**
+- `rounded-3xl` → `borderRadius: 24`
+- `p-[22px]` → `padding: 22`
+- `gap-2` → `gap: 8`
+- `gap-4` → `gap: 16`
+- `pb-[19px]` → `paddingBottom: 19`
+- `px-4` → `paddingHorizontal: 16`
+- `pt-12` → `paddingTop: 48`
+- `pb-6` → `paddingBottom: 24`
+- `max-w-[338px]` → `maxWidth: 338`
+- `mx-auto w-full` → `alignSelf: 'stretch', maxWidth: 338` on the inner container; the outer container handles centering with `alignItems: 'center'`
+- `text-base font-semibold` → `fontSize: 16, fontWeight: '600'`
+- `text-white` → `color: '#FFFFFF'`
+- `bg-black` → `backgroundColor: '#000000'`
+- `bg-[#131313]` → `backgroundColor: '#131313'`
 
 **Steps:**
-1. `app/_layout.tsx`:
+1. Root layout (the file driving the tabs from Phase 1):
    - Load IBM Plex Mono (all four weights, normal + italic) via `expo-font` and gate render on `useFonts` ready.
    - Wrap children in `QueryClientProvider` (single client instance) and `AppContextProvider`.
-   - Apply IBM Plex Mono globally — easiest path is a custom `<Text>` wrapper or `Text.defaultProps.style = { fontFamily: 'IBMPlexMono_400Regular' }` at app startup. Confirm fallback fonts never render.
-   - Root view: `flex-1 bg-black` with `SafeAreaView` for top inset.
-2. `app/index.tsx`:
-   - Mirror `src/app/page.tsx`: a `<ScrollView>` (or `<View>` if it fits) with `className="px-4 pb-6"`, inner container `className="max-w-[338px] mx-auto w-full pt-12"`. Render `<Departures />`.
+   - Apply IBM Plex Mono globally by setting `Text.defaultProps.style = { fontFamily: 'IBMPlexMono_400Regular' }` (and matching for bold via component-level styles). Confirm fallback fonts never render.
+   - Root view: `style={{ flex: 1, backgroundColor: '#000000' }}` with `SafeAreaView` for top inset. Tab bar background also `#000000`.
+2. `Times` tab screen (the renamed `index.tsx`):
+   - Mirror `src/app/page.tsx`: a `<ScrollView>` (or `<View>` if it fits) with the page padding/centering set via `contentContainerStyle`. Inner container: `{ alignSelf: 'stretch', maxWidth: 338, width: '100%', paddingTop: 48 }` centered inside an outer container with `{ paddingHorizontal: 16, paddingBottom: 24, alignItems: 'center' }`. Render `<Departures />` inside.
    - Use `useGeolocation` here only if you need to compute distances at the page level — otherwise leave it inside `<Departures />` as today.
 3. `components/Tag.tsx` (port):
    - Replace `<div>` wrapper with `<View>` and the inner text with `<Text>`.
@@ -108,19 +130,20 @@ Take a reference screenshot of the current web app at the start of Phase 1 and s
    - Inline `style={{ color, borderColor: color }}` works identically in RN.
    - Note: `Tag.tsx` is imported but not visibly used in the current `Departures.tsx`; port it for completeness but don't render it unless the web app does.
 4. `components/Departures.tsx` (port — the critical one for visual parity):
-   - Outer wrapper: `<View className="w-full">` with `<View className="flex-col gap-4">` for the list.
-   - `StopDepartureGroup`: `<View className="rounded-3xl p-[22px] flex-col gap-2 bg-[#131313]">`. Header row: `<View className="flex-row gap-4 items-center pb-[19px]">` containing `<MetroIcon width={21} height={22} fill={typeToColor[stop.type]} />` and `<Text className="text-base font-semibold text-white">{stop.name}</Text>`.
-   - `Departure` row: `<View className="flex-row justify-between gap-2">` with direction `<Text>` left and countdown `<Text>` right, both white.
-   - Loading / error / "Getting location..." states render as a single centered `<Text className="text-white">` — same copy as the web version.
+   - Outer wrapper: `<View style={{ width: '100%' }}>` with an inner `<View style={{ flexDirection: 'column', gap: 16 }}>` for the list.
+   - `StopDepartureGroup`: `<View style={{ borderRadius: 24, padding: 22, flexDirection: 'column', gap: 8, backgroundColor: '#131313' }}>`. Header row: `<View style={{ flexDirection: 'row', gap: 16, alignItems: 'center', paddingBottom: 19 }}>` containing `<MetroIcon width={21} height={22} fill={typeToColor[stop.type]} />` and `<Text style={{ fontSize: 16, fontWeight: '600', color: '#FFFFFF' }}>{stop.name}</Text>`.
+   - `Departure` row: `<View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>` with direction `<Text>` left and countdown `<Text>` right, both `color: '#FFFFFF'`.
+   - Loading / error / "Getting location..." states render as a single centered `<Text style={{ color: '#FFFFFF' }}>` — same copy as the web version.
+   - Move the repeated style objects into a `StyleSheet.create({ card, header, row, ... })` block at the bottom of the file to keep the JSX readable.
 5. Performance tweak (does **not** change visuals): set TanStack Query `refetchInterval: 2000` as today, but also pause on background via `focusManager` + `AppState` listener so we don't burn battery when the screen isn't visible.
 
 **Verification — visual parity (this is the gate; all must pass):**
 - Side-by-side: simulator iPhone 14 (390pt) next to Safari at 390px width on the same departure stops. The two screenshots overlay with **no card-shape, padding, color, or font-weight differences**.
 - Card background color sampled with a color picker reads `#131313` on both.
-- Card corner radius measures the same (24px / `rounded-3xl`).
+- Card corner radius measures the same (24px).
 - Content column is centered with the same left/right gutter; max card width is 338px on both.
-- Top padding from the safe-area inset down to the first card matches the web's `pt-12` (48px) — adjust by adding `pt-12` *below* the safe-area inset, not on top of it.
-- Metro icon: A=green, B=yellow, C=red, sized 21×22, positioned left of the stop name with the same gap.
+- Top padding from the safe-area inset down to the first card matches the web's 48px — apply that `paddingTop` *below* the safe-area inset, not on top of it.
+- Metro icon: A=green, B=yellow, C=red, sized 21×22, positioned left of the stop name with the same gap (16px).
 - Countdown text and direction text use IBM Plex Mono — confirm by inspecting a screenshot character shape (the Plex Mono lowercase `a` has a distinctive double-storey form; if you see a single-storey `a` the font isn't loading).
 - Countdown ticks down by 1 each second smoothly; switches to `Departing` at `<0` seconds.
 - A full data refetch every 2 seconds doesn't cause flicker or remount (the countdown keeps ticking through the refetch).
@@ -144,7 +167,7 @@ Take a reference screenshot of the current web app at the start of Phase 1 and s
 2. Open the Camera app on the iPhone, scan the QR code from the terminal.
 3. App loads inside Expo Go.
 
-This works because we use only modules supported by Expo Go (expo-location, expo-font, react-native-svg, expo-router, NativeWind).
+This works because we use only modules supported by Expo Go (expo-location, expo-font, react-native-svg, expo-router).
 
 **Path B — Dev Client (when Expo Go isn't enough):**
 1. Set up EAS: `pnpm dlx eas-cli login` then `eas build:configure`.

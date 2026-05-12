@@ -2,18 +2,11 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import MetroIcon from '@/assets/icons/metro.svg';
-
-export default function TimesScreen() {
+export default function StationsScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.content}>
-        <Text style={styles.title}>Times</Text>
-        <View style={styles.icons}>
-          <MetroIcon width={21} height={22} fill="#50AF32" />
-          <MetroIcon width={21} height={22} fill="#FFD500" />
-          <MetroIcon width={21} height={22} fill="#E63024" />
-        </View>
+        <Text style={styles.title}>Stations</Text>
       </View>
     </SafeAreaView>
   );
@@ -28,15 +21,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 24,
   },
   title: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
-  },
-  icons: {
-    flexDirection: 'row',
-    gap: 16,
   },
 });
