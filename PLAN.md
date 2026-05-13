@@ -152,6 +152,8 @@ Take a reference screenshot of the current web app at the start of Phase 1 and s
 
 ## Phase 4 — Build the UI (this is the look-the-same phase)
 
+**Status: ✅ Done** (commited).
+
 **What:** Port `Departures.tsx` and `Tag.tsx` to React Native using only the `style` prop (inline objects and `StyleSheet.create`), achieving pixel-level parity with the reference screenshot.
 
 **DOM → RN element mapping (apply consistently):**
@@ -214,6 +216,25 @@ Take a reference screenshot of the current web app at the start of Phase 1 and s
 - All 5 nearest stops render as separate cards, ordered nearest-first (same order as the web app for the same coordinates).
 - Stops with no current departures collapse out (same as web — `if (stopDepartures.length === 0) return null`).
 - Killing the app and reopening restores the same view without a white flash.
+
+**Delivered:**
+- `mobile/src/app/_layout.tsx` — loads IBM Plex Mono (weights 400/500/600/700 + italic) via `useFonts` from `@expo-google-fonts/ibm-plex-mono`. Holds the splash screen until fonts resolve (`SplashScreen.preventAutoHideAsync()` + `hideAsync()` once `fontsLoaded`). Sets `Text.defaultProps.style = { fontFamily: 'IBMPlexMono_400Regular' }` so no native fallback ever paints. Wraps `<AppTabs />` in a single `QueryClientProvider` + `AppContextProvider` + `BlackTheme` `ThemeProvider`. Also wires the Phase-4 perf tweak: `AppState` listener → `focusManager.setFocused(state === 'active')`, so the 2-second polling pauses on background.
+- `mobile/src/components/Tag.tsx` — ported `MetroTag` with `View` + `Text` + `StyleSheet`. `typeToColor` / `typeToName` maps unchanged. Exported `typeToColor` is the source for `Departures` icon colors.
+- `mobile/src/components/Departures.tsx` — full port. Outer `<View style={{ width: '100%' }}>` → inner list `<View style={{ flexDirection: 'column', gap: 16 }}>`. Each `StopDepartureGroup` is `{ borderRadius: 24, padding: 22, gap: 8, backgroundColor: '#131313' }`. Header row `{ flexDirection: 'row', alignItems: 'center', gap: 16, paddingBottom: 19 }` with `<MetroIcon width={21} height={22} fill={typeToColor[stop.type]} />` and the stop name `{ fontSize: 16, fontWeight: '600', fontFamily: 'IBMPlexMono_600SemiBold' }`. Departure rows `{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }` with direction left and countdown right (both 16/400/Plex Mono). Loading / error / "Getting location..." render as a single centered white `<Text>`. Added `enabled: queryKey.length > 0` on `useQuery` so the request doesn't fire before coords resolve.
+- `mobile/src/app/index.tsx` — debug screen replaced with the real Times screen: `SafeAreaView` (`#000000`, `edges={['top', 'left', 'right']}`) → `ScrollView` with `contentContainerStyle = { paddingHorizontal: 16, paddingBottom: 24, alignItems: 'center' }` → inner `<View style={{ width: '100%', maxWidth: 338, paddingTop: 48 }}>` → `<Departures />`.
+- `@expo-google-fonts/ibm-plex-mono@^0.4.1` added to `mobile/package.json` (installed with `--config.storeDir=…/v11` per the Phase 2 housekeeping note).
+
+**Verification results:**
+- `pnpm tsc --noEmit` from `mobile/` — clean (exit 0).
+- Visual side-by-side: web at `localhost:3000` (390 viewport via agent-browser) vs iOS simulator (iPhone 16 Pro, 402pt). Card shape (radius 24 / padding 22), card background `#131313`, page background `#000000`, 16-px inter-card gap, header row with `MetroIcon` 21×22 in the line color + bold stop name, `gap: 16` between icon and name, `paddingBottom: 19` below the header row, direction-left/countdown-right rows, and IBM Plex Mono (double-storey `a`, double-storey `g`) all match. Horizontal gutters differ by ~6pt only because the simulator's screen is 402pt vs the web's 390pt — both cap at `maxWidth: 338` and both are centered.
+- "Getting location...", "Loading...", and "Error: …" copy mirrors the web version verbatim.
+- 1-second countdown ticks through the 2-second refetch without flicker (countdown is driven by `useCurrentTime`, independent of the query).
+
+**Deviations from the spec:**
+- Inner container drops `alignSelf: 'stretch'` from the spec's `{ alignSelf: 'stretch', maxWidth: 338, width: '100%' }`. With `alignSelf: 'stretch'` the column anchored to the start of the parent's cross axis and ignored the parent's `alignItems: 'center'`, so cards rendered left-of-center on iPhone 16 Pro. Removing `alignSelf` lets the parent's `alignItems: 'center'` take over; `width: '100%' + maxWidth: 338` still clamp the width to 338.
+- Stop name uses `fontFamily: 'IBMPlexMono_600SemiBold'` directly rather than relying on `fontWeight: '600'` + the global default `IBMPlexMono_400Regular`. React Native does not synthesize weight from a regular face, so explicit family per weight is required.
+- Replaced `lodash.uniqby` (web dependency) with a small inline `uniqByHeadsign` helper rather than adding a new dependency for one call site.
+- Tab bar background was already `#000000` from Phase 1 (`NativeTabs backgroundColor="#000000"`); no extra work needed in this phase.
 
 ---
 

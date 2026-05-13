@@ -1,7 +1,22 @@
 import { DarkTheme, ThemeProvider } from '@react-navigation/native';
-import React from 'react';
+import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import React, { useEffect } from 'react';
+import { AppState, Text, View } from 'react-native';
+import {
+  IBMPlexMono_400Regular,
+  IBMPlexMono_400Regular_Italic,
+  IBMPlexMono_500Medium,
+  IBMPlexMono_500Medium_Italic,
+  IBMPlexMono_600SemiBold,
+  IBMPlexMono_600SemiBold_Italic,
+  IBMPlexMono_700Bold,
+  IBMPlexMono_700Bold_Italic,
+} from '@expo-google-fonts/ibm-plex-mono';
 
 import AppTabs from '@/components/app-tabs';
+import { AppContextProvider } from '@/components/AppContext';
 
 const BlackTheme = {
   ...DarkTheme,
@@ -12,10 +27,50 @@ const BlackTheme = {
   },
 };
 
+const queryClient = new QueryClient();
+
+SplashScreen.preventAutoHideAsync().catch(() => {});
+
+(Text as unknown as { defaultProps?: { style?: unknown } }).defaultProps =
+  (Text as unknown as { defaultProps?: { style?: unknown } }).defaultProps ?? {};
+(Text as unknown as { defaultProps: { style: unknown } }).defaultProps.style = {
+  fontFamily: 'IBMPlexMono_400Regular',
+};
+
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    IBMPlexMono_400Regular,
+    IBMPlexMono_400Regular_Italic,
+    IBMPlexMono_500Medium,
+    IBMPlexMono_500Medium_Italic,
+    IBMPlexMono_600SemiBold,
+    IBMPlexMono_600SemiBold_Italic,
+    IBMPlexMono_700Bold,
+    IBMPlexMono_700Bold_Italic,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) SplashScreen.hideAsync().catch(() => {});
+  }, [fontsLoaded]);
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      focusManager.setFocused(state === 'active');
+    });
+    return () => sub.remove();
+  }, []);
+
+  if (!fontsLoaded) {
+    return <View style={{ flex: 1, backgroundColor: '#000000' }} />;
+  }
+
   return (
-    <ThemeProvider value={BlackTheme}>
-      <AppTabs />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <AppContextProvider>
+        <ThemeProvider value={BlackTheme}>
+          <AppTabs />
+        </ThemeProvider>
+      </AppContextProvider>
+    </QueryClientProvider>
   );
 }

@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@expo-google-fonts/ibm-plex-mono':
+        specifier: ^0.4.1
+        version: 0.4.1
       '@react-navigation/bottom-tabs':
         specifier: ^7.15.5
         version: 7.16.0(@react-navigation/native@7.2.4(react-native@0.83.6(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.0))(react@19.2.0))(react-native-safe-area-context@5.6.2(react-native@0.83.6(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.0))(react@19.2.0))(react-native-screens@4.23.0(react-native@0.83.6(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.0))(react@19.2.0))(react-native@0.83.6(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)
@@ -634,6 +637,9 @@ packages:
   '@egjs/hammerjs@2.0.17':
     resolution: {integrity: sha512-XQsZgjm2EcVUiZQf11UBJQfmZeEmOW8DpI1gsFeln6w0ae0ii4dMQEQ0kjl6DspdWX1aGY1/loyXnP0JS06e/A==}
     engines: {node: '>=0.8.0'}
+
+  '@expo-google-fonts/ibm-plex-mono@0.4.1':
+    resolution: {integrity: sha512-/yYz1mPZq8Nd4tSiH0SBDPEdJUqiOGBwVgSrQvLuw7SPh6C7ezBzmi6eFyHY4QaQwjHDmOLSBKsxzq8ZDFXVAg==}
 
   '@expo-google-fonts/material-symbols@0.4.36':
     resolution: {integrity: sha512-hFIN8h99qUid9OppB9Sj18sUQib2O0I9c0soBmgb932Kz+20pAaGe/PRH6NdAqm8/DdOs+Hwx8A4Fqn9ZNadhg==}
@@ -4021,6 +4027,8 @@ snapshots:
   '@egjs/hammerjs@2.0.17':
     dependencies:
       '@types/hammerjs': 2.0.46
+
+  '@expo-google-fonts/ibm-plex-mono@0.4.1': {}
 
   '@expo-google-fonts/material-symbols@0.4.36': {}
 
