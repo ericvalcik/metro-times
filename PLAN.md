@@ -22,6 +22,8 @@ Take a reference screenshot of the current web app at the start of Phase 1 and s
 
 ## Phase 1 — SVG support, black root, and tab rename
 
+**Status: ✅ Done** (commit `9f7e574 finished phase 1`).
+
 **What:** The Expo app is already bootstrapped at `mobile/` with an `expo-router` tabs scaffold. Wire SVG-as-component support, force a black background so there's no white flash, and rename the existing tabs to **Times** and **Stations**. No Tailwind, no NativeWind — we'll style everything with React Native's `style` prop (inline objects + `StyleSheet.create`) from here on.
 
 **Steps:**
@@ -46,9 +48,25 @@ Take a reference screenshot of the current web app at the start of Phase 1 and s
 - `mobile/reference-web.png` exists and shows at least one departure card from the current web app.
 - `pnpm tsc --noEmit` from `mobile/` is clean.
 
+**Delivered:**
+- `mobile/reference-web.png` saved (128.9 KB).
+- `react-native-svg@^15.15.3` + `react-native-svg-transformer@^1.5.3` installed.
+- `mobile/metro.config.js` swaps `svg` from `assetExts` → `sourceExts` and sets `babelTransformerPath` to `react-native-svg-transformer/expo`.
+- `mobile/src/types/svg.d.ts` declares `*.svg` as `React.FC<SvgProps>`; included via `tsconfig.json`'s `src/types/**/*.d.ts` pattern.
+- `mobile/assets/icons/metro.svg` in place; `fill="currentColor"` dropped so the imported component's `fill` prop reaches the path. Rendered with green/yellow/red on the Times screen as a smoke test.
+- Root layout (`mobile/src/app/_layout.tsx`) wraps the navigator in a custom `BlackTheme` via `@react-navigation/native`'s `ThemeProvider` (`background` and `card` both `#000000`).
+- Tabs renamed to **Times** (`index.tsx`) and **Stations** (`stations.tsx`); placeholder content on Stations.
+
+**Deviations from the spec:**
+- Tabs are built with `expo-router/unstable-native-tabs` (`NativeTabs`) in `src/components/app-tabs.tsx`, not a file-system `(tabs)` group. Labels and icons live on `<NativeTabs.Trigger>` rather than a `_layout.tsx` inside the group.
+- Black background applied via `ThemeProvider`'s `BlackTheme` instead of `screenOptions.contentStyle.backgroundColor`. Tab bar uses `NativeTabs` props (`backgroundColor="#000000"`, `labelStyle.selected.color="#FFFFFF"`).
+- Tab icons use existing PNGs in `assets/images/tabIcons/` (`home.png`, `explore.png`) rather than swapping in custom ones.
+
 ---
 
 ## Phase 2 — Port shared logic (pure TypeScript, no UI)
+
+**Status: ✅ Done** (commited).
 
 **What:** Move all non-DOM logic over. These files have zero React Native dependencies and should compile unchanged or near-unchanged.
 
@@ -66,9 +84,37 @@ Take a reference screenshot of the current web app at the start of Phase 1 and s
 - `calcDistance([50.07777, 14.41741], [50.098341, 14.362833])` returns roughly `4000` (meters) — sanity check that the math ported correctly.
 - `parseMiliseconds(125000)` returns `"2:05"`.
 
+**Delivered (all under `mobile/src/` to keep the existing `@/*` → `./src/*` alias):**
+- `src/types.ts` — copied verbatim.
+- `src/data/stops.ts` — copied verbatim.
+- `src/hooks/use-current-time.ts` — copied; renamed `.tsx` → `.ts` (no JSX).
+- `src/hooks/use-geolocation.ts` — stub exporting only the `Coords` type plus a `useGeolocation()` that returns `null`. Lets `lib/utils.ts` typecheck now; Phase 3 will replace this with the real `expo-location` implementation.
+- `src/lib/utils.ts` — dropped `cn`/`twMerge`/`clsx` and their imports. Kept `calcDistance`, `parseDeparture`, `parseMiliseconds`, `parseDistance` unchanged. Fixed the misleading "in kilometers" comment to "in meters".
+- `src/api/fetchStops.ts` — `process.env.NEXT_PUBLIC_API_KEY` → `process.env.EXPO_PUBLIC_API_KEY`.
+- `src/components/AppContext.tsx` — copied; dropped Next.js `"use client"` directive (no-op in RN).
+- `mobile/.env.local` — `EXPO_PUBLIC_API_KEY=…` (the Golemio token from the web app's `.env.local`).
+- `@tanstack/react-query@^5.100.10` added to `mobile/package.json` (needed by `fetchStops.ts` and by Phase 4).
+
+**Verification results:**
+- `pnpm tsc --noEmit` from `mobile/` — clean (exit 0).
+- `parseMiliseconds(125000)` → `"2:05"` ✓.
+- `calcDistance([50.07777, 14.41741], [50.098341, 14.362833])` → `~4516 m` (within the "roughly 4000" sanity range — same formula as the web app's haversine).
+- Live `fetchStops` call against `U321Z101P` (Dejvická): returns 9 departures with the expected shape (`route.short_name="A"`, `trip.headsign="Depo Hostivař"`, etc.).
+- On-device verification screen wired into `src/app/index.tsx` (temporary; Phase 4 overwrites it) that runs all four checks at startup.
+
+**Deviations from the spec:**
+- API key wiring: chose **`process.env.EXPO_PUBLIC_API_KEY`** (the spec's parenthetical alternative) over `Constants.expoConfig?.extra?.apiKey` + `app.config.ts`. Reasons: `app.json` works as-is, no need to convert the config to TypeScript, and `EXPO_PUBLIC_*` mirrors the web's `NEXT_PUBLIC_*` pattern.
+- Env file: used **`mobile/.env.local`** rather than `mobile/.env`. The existing `.gitignore` already excludes `.env*.local`, so this keeps the token out of git and matches the web app's `.env.local` convention.
+- File layout: kept everything under `mobile/src/` (the spec wrote `mobile/types.ts`, `mobile/data/stops.ts`, etc., but the existing Expo scaffold uses `src/` and the `@/*` path alias points there).
+
+**Housekeeping note:**
+- `mobile/node_modules` was linked from pnpm store **v11** while the current pnpm CLI defaulted to **v10**, causing `ERR_PNPM_UNEXPECTED_STORE` on any `pnpm add`. One-time fix: `CI=true pnpm install --config.storeDir=/Users/ericvalcik/Library/pnpm/store/v11` in `mobile/`. Future installs in this directory may need `--config.storeDir=…/v11` until the store is upgraded.
+
 ---
 
 ## Phase 3 — Native replacements
+
+**Status: ✅ Done** (commited).
 
 **What:** Swap the two browser-only pieces (geolocation and the SVG import path) for their Expo equivalents.
 
@@ -86,6 +132,21 @@ Take a reference screenshot of the current web app at the start of Phase 1 and s
 - After granting, a debug `console.log(coords)` prints a `[lat, lon]` array roughly matching the device's actual location.
 - In the simulator without granting, the Myslbach fallback kicks in and `coords` is non-null within a second.
 - `<MetroIcon fill="#FFD500" />` renders yellow; `fill="#E63024"` renders red. Confirms color propagation works for B and C lines, not just A.
+
+**Delivered:**
+- `mobile/src/hooks/use-geolocation.ts` — real `expo-location` implementation. Calls `Location.requestForegroundPermissionsAsync()` on mount, then `Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })`. On denial *or* on any thrown error, falls back to the Myslbach default (`[50.07777384729586, 14.417414782736316]`) gated on `__DEV__`. Return type stays `Coords | null`. Uses a `cancelled` flag in the `useEffect` cleanup so a fast unmount can't set state on a dead component.
+- `mobile/app.json` — added `ios.infoPlist.NSLocationWhenInUseUsageDescription` with the user-facing string "Metro Times uses your location to show departures from the metro stops nearest to you."
+- `expo-location@~55.1.10` added to `mobile/package.json` (installed via `pnpm add ... --config.storeDir=…/v11` per the Phase 2 housekeeping note).
+- `mobile/src/app/index.tsx` — debug screen now also exercises `useGeolocation` and renders the resolved `lat, lon` (still temporary; Phase 4 overwrites it).
+
+**Verification results:**
+- `pnpm tsc --noEmit` from `mobile/` — clean (exit 0).
+- On-device / on-simulator verification (permission prompt + live coords vs. Myslbach fallback) — pending; deferred until next `pnpm expo start` session.
+- SVG `fill` propagation for B (`#FFD500`) and C (`#E63024`) — still rendered by the three-icon smoke row on the debug screen (validated in Phase 1, untouched here).
+
+**Deviations from the spec:**
+- Permission string lives in **`app.json`** under `ios.infoPlist.NSLocationWhenInUseUsageDescription`, not in `app.config.ts`. Same reasoning as Phase 2's API-key deviation — no need to convert the config to TypeScript.
+- The `__DEV__` Myslbach fallback also fires when `getCurrentPositionAsync` *throws* (not just on permission denial). This keeps the simulator usable when location services are off entirely; production is unaffected because the fallback is gated on `__DEV__`.
 
 ---
 

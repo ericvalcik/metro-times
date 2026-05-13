@@ -6,12 +6,14 @@ import MetroIcon from '@/assets/icons/metro.svg';
 import { fetchStops } from '@/api/fetchStops';
 import { allStops } from '@/data/stops';
 import { useCurrentTime } from '@/hooks/use-current-time';
+import { useGeolocation } from '@/hooks/use-geolocation';
 import { calcDistance, parseMiliseconds } from '@/lib/utils';
 
 const MYSLBACH: [number, number] = [50.07777384729586, 14.417414782736316];
 
 export default function TimesScreen() {
   const currentTime = useCurrentTime();
+  const coords = useGeolocation();
   const [apiStatus, setApiStatus] = useState<string>('calling fetchStops…');
   const [firstDeparture, setFirstDeparture] = useState<string>('—');
 
@@ -96,6 +98,15 @@ export default function TimesScreen() {
         <View style={styles.row}>
           <Text style={styles.label}>first departure</Text>
           <Text style={styles.value}>{firstDeparture}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>useGeolocation</Text>
+          <Text style={styles.value}>
+            {coords
+              ? `${coords[0].toFixed(5)}, ${coords[1].toFixed(5)}`
+              : 'awaiting permission / fix…'}
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
