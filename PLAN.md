@@ -1,4 +1,4 @@
-## TODO — Standalone install on iPhone (no dev server)
+## TODO — Standalone install on iPhone (no dev server) - can be done later
 
 **Status: 🚧 In progress** — native iOS project generated and opened in Xcode; remaining work is the user-side signing flow + first install.
 

@@ -35,3 +35,7 @@ Both apps need a Golemio API token in their own `.env.local`:
 - `mobile/.env.local` — `EXPO_PUBLIC_API_KEY=...`
 
 Because these are `NEXT_PUBLIC_*` / `EXPO_PUBLIC_*`, the token ships to the client — treat any rotation as public.
+
+## Playground
+
+Playground in `./playground` is just for testing - no structure, nothing interesting.

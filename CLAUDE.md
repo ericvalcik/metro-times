@@ -6,6 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **`mobile/`** — Expo / React Native app. **This is the active app.** Default any new feature work here.
 - **`web/`** — Original Next.js 14 App Router implementation, kept as a fallback / reference. Don't add features here unless the user explicitly asks.
+- **`playground/`** — Python sandbox for testing APIs and ideas. Managed by `uv` (Python 3.13, `pyproject.toml` + `uv.lock`). Don't touch unless the user asks. See `playground/README.md`.
 - `PLAN.md` — current standalone-iOS-install flow (free Apple ID signing path).
 
 Each subproject has its own `package.json`, `pnpm-lock.yaml`, and `.env.local`. Always `cd` into the right one before running commands; there is no root workspace.
@@ -71,3 +72,18 @@ pnpm lint
 ```
 
 The web app uses `NEXT_PUBLIC_API_KEY` (in `web/.env.local`), Tailwind, shadcn/ui, and the App Router. Same Golemio API, same `allStops` data, same 2s polling — just rendered with HTML / Tailwind instead of React Native primitives. Path alias `@/*` maps to `web/src/*`.
+
+## Playground (`playground/`)
+
+Don't touch unless the user explicitly asks. Throw-away Python scripts for poking at APIs.
+
+Package manager: **`uv`** (not pip / poetry / pipenv). Python pinned to 3.13 via `.python-version`. Commands run from `playground/`:
+
+```bash
+cd playground
+uv sync                # install deps from uv.lock into .venv/
+uv run main.py         # run a script
+uv add <pkg>           # add a dependency
+```
+
+Env var is `GOLEMIO_API_KEY` in `playground/.env.local` — same token as mobile's `EXPO_PUBLIC_API_KEY`, loaded via `python-dotenv`. Current deps: `httpx`, `python-dotenv`, `rich`. See `playground/README.md` for details.
