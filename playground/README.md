@@ -53,3 +53,10 @@ playground/
 ## API reference
 
 `main.py` mirrors the request shape used by `mobile/src/api/fetchStops.ts`: a GET against `https://api.golemio.cz/v2/public/departureboards` with `stopIds` URL-encoded as `{"0": [<platform-id>, ...]}` and the `X-Access-Token` header. Platform IDs live in `mobile/src/data/stops.ts`.
+
+Golemio Public Transport API — full surface used (and not yet used) by this project:
+
+- Swagger UI: <https://api.golemio.cz/pid/docs/openapi/>
+- Raw OpenAPI 3.0.3 spec (JSON, ~165 KB): <https://api.golemio.cz/docs/static/vp-output-gateway/openapi.json>
+
+The Swagger page is JS-rendered, so to grep/diff the spec from a script, fetch the raw JSON URL directly. Covers FYPR, MVT vector tiles, GTFS static (`/v2/gtfs/*`), GTFS realtime + vehicle positions, and PID departure boards v2–v4.
