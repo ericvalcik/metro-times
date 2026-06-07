@@ -11,13 +11,24 @@ the standalone (no-dev-server) install. Background and one-time setup live in
 
 ## Workflow
 
-1. **Pre-flight.** Confirm an iPhone is connected and online:
+1. **Pre-flight.** Confirm the iPhone is reachable. Use `devicectl` — it is the
+   authoritative check because it shares the CoreDevice path the install/launch step
+   actually uses:
    ```bash
-   xcrun xctrace list devices | sed -n '/== Devices ==/,/== Simulators ==/p' | grep -i iphone
+   xcrun devicectl list devices
    ```
-   The phone must appear under `== Devices ==`, not `== Devices Offline ==`. If it's
-   missing or offline, ask the user to plug it in via USB, unlock it, and tap
-   "Trust This Computer". Don't proceed until it shows online.
+   The iPhone must show **State `available (paired)`** (it will, even when locked). If
+   so, proceed — do not block on anything else.
+
+   ⚠️ **Do NOT gate on `xcrun xctrace list devices`.** It uses an older connection path
+   that frequently reports a perfectly-connected phone as `== Devices Offline ==` (seen
+   2026-06: xctrace said offline, devicectl said `available (paired)`, build+install
+   succeeded). If `xctrace` and `devicectl` disagree, **trust `devicectl`**.
+
+   Only if `devicectl` does NOT list the phone (or shows it unavailable): ask the user
+   to plug it in via USB, unlock it, and tap "Trust This Computer", then re-check. A
+   missing "Trust This Computer" prompt is normal when the Mac is already paired — it is
+   not a problem as long as `devicectl` shows `available (paired)`.
 
 2. **Build + install + verify** — run the bundled script from `mobile/`:
    ```bash
@@ -48,6 +59,16 @@ the standalone (no-dev-server) install. Background and one-time setup live in
   (both target configs in `ios/MetroTimes.xcodeproj/project.pbxproj`) and flip the
   `LaunchAction` build config to `Release` in `MetroTimes.xcscheme`, per
   `PUT_ON_IPHONE_PLAN.md`, before running the script.
+- **Stock-Expo icon after an icon change?** The gitignored `pbxproj` froze
+  `ASSETCATALOG_COMPILER_APPICON_NAME = expo` from the very first prebuild, but the
+  asset catalog now ships the icon under `AppIcon.appiconset`. Because `expo prebuild`
+  *reuses* an existing `ios/`, that stale build setting never updates and the build
+  keeps shipping the old `expo` icon. Fix: set both `ASSETCATALOG_COMPILER_APPICON_NAME`
+  lines in `ios/MetroTimes.xcodeproj/project.pbxproj` to `AppIcon`, delete the cached
+  `ios/build/ddp/Build/Products/Release-iphoneos/MetroTimes.app` so actool recompiles,
+  then rebuild. Verify with `PlistBuddy -c "Print :CFBundleIcons:CFBundlePrimaryIcon:CFBundleIconName"`
+  on the built `.app/Info.plist` (should print `AppIcon`). iOS also caches the home-screen
+  icon — uninstall first, and reboot the phone if it still shows stale.
 - Cadence: re-run weekly when the app stops launching ("could not be verified").
 - `expo run:ios` does NOT work for this free-team path — it omits
   `-allowProvisioningUpdates`, so the profile can't be generated. Use the script.

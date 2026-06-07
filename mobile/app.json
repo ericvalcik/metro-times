@@ -9,7 +9,6 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "com.valcik.metrotimes",
-      "icon": "./assets/expo.icon",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Metro Times uses your location to show departures from the metro stops nearest to you."
       }
