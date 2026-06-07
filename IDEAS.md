@@ -1,0 +1,5 @@
+- App icon + splash screen artwork (still using the default Expo icon).
+- Pull-to-refresh on the departures list.
+- `refetchInterval` tuning by network type.
+- TestFlight distribution via `eas submit` (would require the $99/yr Apple Developer Program).
+- Background-polling pause is already wired in Phase 4's `_layout.tsx` (`AppState` → `focusManager.setFocused(...)`); no further work needed there.
