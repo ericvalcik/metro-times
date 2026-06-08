@@ -72,6 +72,12 @@ export default function RootLayout() {
             screenOptions={{
               headerShown: false,
               contentStyle: { backgroundColor: '#000000' },
+              // The only screens in this stack are the native tabs and the
+              // widget-entry redirect helper; neither should slide. Disabling
+              // the animation kills the "Times page slides in from the right"
+              // transition when the lock-screen widget deep-links through
+              // widget-entry → "/".
+              animation: 'none',
             }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="widget-entry" />
