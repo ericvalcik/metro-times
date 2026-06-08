@@ -9,10 +9,6 @@ module.exports = {
   // Accessory (lock-screen) widgets require iOS 16+. App target stays at 15.1.
   deploymentTarget: '16.0',
   frameworks: ['SwiftUI', 'WidgetKit'],
-  // Plain SVG → tiny raster imageset; an SF Symbol template stays vector and
-  // tints cleanly in the lock screen's single-color rendering. Referenced in
-  // Swift as Image("MetroGlyph").
-  images: {
-    MetroGlyph: './MetroGlyph.svg',
-  },
+  // No image/symbol assets: the metro "M" is drawn as a SwiftUI vector path in
+  // index.swift (MetroGlyphShape) so nothing depends on an asset loading.
 };
