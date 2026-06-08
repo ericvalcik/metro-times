@@ -9,6 +9,7 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "com.valcik.metrotimes",
+      "appleTeamId": "N86QCX9R46",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Metro Times uses your location to show departures from the metro stops nearest to you."
       }
@@ -37,7 +38,9 @@
             "imageWidth": 76
           }
         }
-      ]
+      ],
+      "@bacons/apple-targets",
+      "./plugins/with-disable-script-sandboxing"
     ],
     "experiments": {
       "typedRoutes": true,

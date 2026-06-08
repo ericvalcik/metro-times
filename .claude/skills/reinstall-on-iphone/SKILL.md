@@ -54,6 +54,25 @@ the standalone (no-dev-server) install. Background and one-time setup live in
 ## Notes & gotchas
 
 - Bundle id is `com.valcik.metrotimes`, team `N86QCX9R46`, scheme `MetroTimes`.
+- **The lock-screen widget ships automatically — nothing extra to do.** The
+  `MetroTimesWidget` target (bundle id `com.valcik.metrotimes.widget`, via
+  `@bacons/apple-targets`) is an *embedded* extension: the `MetroTimes` scheme builds it
+  as a dependency, `-allowProvisioningUpdates` signs it on the same free team, and it
+  lands inside the app bundle at `MetroTimes.app/PlugIns/MetroTimesWidget.appex`.
+  Installing the `.app` installs the widget. Sanity-check after a build:
+  `ls ios/build/ddp/Build/Products/Release-iphoneos/MetroTimes.app/PlugIns/`.
+  (Free Apple ID burns a second App ID slot per rebuild for the widget id — fine within
+  the 10/7-day allowance.)
+- **App installs but launches to a blank/broken screen?** Check the bundled JS isn't
+  empty: `ls -la …/MetroTimes.app/main.jsbundle` should be a few MB, not ~0. The cause
+  seen 2026-06: `@bacons/apple-targets` flips `ENABLE_USER_SCRIPT_SANDBOXING = YES`,
+  which sandboxes the RN "Bundle … code and images" phase (`Sandbox: node(...) deny
+  file-write-create … main.jsbundle`) and produces an empty bundle. Durable fix is
+  already in place: `mobile/plugins/with-disable-script-sandboxing.js` (registered last
+  in `app.json` plugins) flips it back to `NO` on every prebuild. If the symptom returns,
+  verify `grep -c "ENABLE_USER_SCRIPT_SANDBOXING = NO" ios/MetroTimes.xcodeproj/project.pbxproj`
+  is 4 and that the plugin is still registered. NOTE: a build into Xcode's *default*
+  DerivedData can keep a stale empty bundle — this script's clean `ios/build/ddp` avoids that.
 - The native `ios/` project is gitignored. If the user ran `expo prebuild` since the
   last install, the signing tweaks are wiped — re-apply `CODE_SIGN_STYLE = Automatic`
   (both target configs in `ios/MetroTimes.xcodeproj/project.pbxproj`) and flip the

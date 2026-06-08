@@ -1,6 +1,7 @@
 import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
 import { AppState, Text, View } from 'react-native';
@@ -15,7 +16,6 @@ import {
   IBMPlexMono_700Bold_Italic,
 } from '@expo-google-fonts/ibm-plex-mono';
 
-import AppTabs from '@/components/app-tabs';
 import { AppContextProvider } from '@/components/AppContext';
 
 const BlackTheme = {
@@ -68,7 +68,14 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <AppContextProvider>
         <ThemeProvider value={BlackTheme}>
-          <AppTabs />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: '#000000' },
+            }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="widget-entry" />
+          </Stack>
         </ThemeProvider>
       </AppContextProvider>
     </QueryClientProvider>
