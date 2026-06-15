@@ -3,3 +3,6 @@
 - `refetchInterval` tuning by network type.
 - TestFlight distribution via `eas submit` (would require the $99/yr Apple Developer Program).
 - Background-polling pause is already wired in Phase 4's `_layout.tsx` (`AppState` → `focusManager.setFocused(...)`); no further work needed there.
+- Make the `Search stops` input clearable — show a cross (clear) button inside the input when it has text, tapping it empties the query.
+- Add a way to dismiss the keyboard after focusing the `Search stops` input (currently there's no way to hide it once it's up) — e.g. tap-outside-to-dismiss, a "Done" return key, or `keyboardDismissMode="on-drag"` on the list.
+- Show the main transport type icon next to each stop group on the Stations page (mirroring the metro icon already shown on the Times cards).
