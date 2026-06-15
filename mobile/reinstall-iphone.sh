@@ -7,7 +7,7 @@
 #
 # Note: this builds from the existing native ios/ project (gitignored). If you
 # re-run `expo prebuild`, the signing tweaks are regenerated away — re-apply
-# CODE_SIGN_STYLE=Automatic + the Release LaunchAction per ../PUT_ON_IPHONE_PLAN.md.
+# CODE_SIGN_STYLE=Automatic + the Release LaunchAction.
 set -euo pipefail
 cd "$(dirname "$0")"
 

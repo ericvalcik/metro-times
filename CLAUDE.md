@@ -7,7 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **`mobile/`** — Expo / React Native app. **This is the active app.** Default any new feature work here.
 - **`web/`** — Original Next.js 14 App Router implementation, kept as a fallback / reference. Don't add features here unless the user explicitly asks.
 - **`playground/`** — Python sandbox for testing APIs and ideas. Managed by `uv` (Python 3.13, `pyproject.toml` + `uv.lock`). Don't touch unless the user asks. See `playground/README.md`.
-- `PLAN.md` — current standalone-iOS-install flow (free Apple ID signing path).
+- `PLAN.md` — engineering record of the Stations stop-selection feature (what was built, decisions, gotchas). `IDEAS.md` — backlog.
+- Standalone iPhone install (free Apple ID signing) is driven by the **`reinstall-on-iphone` skill** + `mobile/reinstall-iphone.sh` — run the skill to rebuild/re-sign/reinstall.
 
 Each subproject has its own `package.json`, `pnpm-lock.yaml`, and `.env.local`. Always `cd` into the right one before running commands; there is no root workspace.
 
@@ -23,9 +24,16 @@ pnpm exec expo prebuild --platform ios   # regenerate native iOS project
 pnpm lint                # expo lint
 ```
 
-For a standalone iPhone install (no dev server), follow `PLAN.md` — the gist is `expo prebuild` → open `mobile/ios/MetroTimes.xcworkspace` in Xcode → sign with a free Apple ID → switch the Run scheme to Release → ⌘R. Sideloaded builds expire after 7 days and must be re-signed.
+For a standalone iPhone install (no dev server), use the **`reinstall-on-iphone` skill**, which runs `mobile/reinstall-iphone.sh` (auto-detects the device UDID, builds Release with `-allowProvisioningUpdates`, installs via `devicectl`, verifies launch). The manual path is `expo prebuild` → open `mobile/ios/MetroTimes.xcworkspace` in Xcode → sign with a free Apple ID → Release scheme → ⌘R. Sideloaded builds expire after 7 days and must be re-signed.
 
-There is no test suite.
+The script's "VERIFIED launch" only confirms the process *spawned*, not that it stayed up. To debug a device crash, relaunch with the console attached and reproduce — it streams stdout/stderr so a fatal JS exception (`RCTFatalException: …`) and `signal 6` appear directly:
+
+```bash
+xcrun devicectl device process launch --console --terminate-existing \
+  --device <UDID> com.valcik.metrotimes   # UDID from `xcrun devicectl list devices`
+```
+
+There is no test suite. `pnpm exec tsc --noEmit` (from `mobile/`) is the working verification gate; `pnpm lint` (`expo lint`) needs eslint, which it installs interactively on first run.
 
 ### Environment
 
@@ -33,14 +41,16 @@ There is no test suite.
 
 ### Architecture
 
-Single-screen Expo Router app showing real-time Prague metro departure boards for the user's nearest stops. Everything runs on-device; there is no backend of our own — we call Golemio directly.
+Expo Router app with two native tabs — **Times** (real-time Prague departure boards for the nearest stops) and **Stations** (pick which stops to consider). Everything runs on-device; there is no backend of our own — we call Golemio directly.
 
-Data flow on each render:
+**Stop-selection pool.** The Stations tab (`mobile/src/app/(tabs)/stations.tsx`) toggles stops/platforms on or off. The selection is a *candidate pool* persisted to AsyncStorage (key `"selectedStops"`) and owned by `SelectedStopsProvider` / `useSelectedStops()` (`mobile/src/hooks/use-selected-stops.ts`, mounted in `_layout.tsx`). The searchable master list is the generated `allStops` asset (`mobile/src/data/stops.ts`, built by `scripts/process-stops.ts`). First-launch default selects only the metro platforms of metro stations. See `PLAN.md` for the full feature record.
+
+Times-tab data flow on each render:
 
 1. `useGeolocation` (`mobile/src/hooks/use-geolocation.ts`) requests `expo-location` foreground permission and returns `[lat, lon]`. In `__DEV__` it falls back to a hardcoded Myslbach location if permission is denied; production has no fallback.
-2. `Departures.tsx` computes the 5 nearest stops from the static `allStops` list in `mobile/src/data/stops.ts` using `calcDistance` from `mobile/src/lib/utils.ts` (haversine, returns meters), sorts ascending, and writes the result into `AppContext` (`mobile/src/components/AppContext.tsx`).
-3. The query key is the flattened list of platform IDs (`stop.stops`) across the 5 selected stops. `fetchStops` (`mobile/src/api/fetchStops.ts`) hits `https://api.golemio.cz/v2/public/departureboards` with the `X-Access-Token` header from `EXPO_PUBLIC_API_KEY`. React Query polls every 2s (`refetchInterval: 2000`).
-4. `StopDepartureGroup` filters the combined response by `stop.id` per stop and de-dupes by `trip.headsign` (one row per destination). Time-to-departure is computed against `useCurrentTime` (a 1s ticking clock) so the countdown re-renders independently of the 2s polling.
+2. `Departures.tsx` takes the **selected pool** (`useSelectedStops`) and computes the **5 nearest** groups by `calcDistance` (`mobile/src/lib/utils.ts`, haversine in meters) to each group's `avgLat/avgLon`. The pool — not the full `allStops` list — is the candidate set; Times always shows only the 5 closest. (There is no `AppContext` anymore; it was removed.)
+3. The query key is the flattened list of platform IDs across those 5 stops (~10–20 ids, under the API cap). `fetchStops` (`mobile/src/api/fetchStops.ts`) hits `https://api.golemio.cz/v2/public/departureboards` with the `X-Access-Token` header from `EXPO_PUBLIC_API_KEY`; React Query polls every 2s (`refetchInterval: 2000`). `data?.[0]` is an array on success but an error *object* on a bad request, so `Departures.tsx` guards with `Array.isArray` before reading it.
+4. `StopDepartureGroup` filters the response by platform `id`, then `groupByHeadsign` keeps the **next two** departures per destination. Each row is two lines: route `short_name` (colored via `lineColor`) + headsign on top; the closest countdown (white) with the following one in gray brackets below. Countdowns tick against `useCurrentTime` (a 1s clock), independent of the 2s polling.
 5. The root layout (`mobile/src/app/_layout.tsx`) wires `AppState` → `focusManager.setFocused(...)` so React Query pauses polling when the app is backgrounded.
 
 ### Navigation & UI
@@ -58,6 +68,7 @@ Data flow on each render:
 - Metro line colors live in `typeToColor` in `mobile/src/components/Tag.tsx` (A=green `#50AF32`, B=yellow `#FFD500`, C=red `#E63024`). Reuse this map rather than redefining hex values.
 - `mobile/src/data/stops.ts` is the source of truth for stop metadata; each entry has both directional platform IDs (`stops: [...]`) so a single API query covers both directions at one station.
 - Files with a `.web.tsx` / `.web.ts` sibling (`app-tabs.web.tsx`, `animated-icon.web.tsx`, `use-color-scheme.web.ts`) are picked up by Metro's web target. Keep native and web variants in sync when changing the shared file.
+- **Adding a native dependency requires a `pod install` before the next device build.** After installing a package that ships a native module (e.g. `@react-native-async-storage/async-storage`), run `pod install --project-directory=ios` from `mobile/` — otherwise the standalone build links no native side and crashes on launch with `RCTFatalException: NativeModule: <X> is null`. `pod install` is sufficient and is safer than `expo prebuild`, which regenerates the gitignored `ios/` project and wipes the manual free-signing tweaks. JS-only deps (e.g. `@shopify/flash-list` v2 — no podspec) need nothing; Expo Go / simulator reloads never need a rebuild. Confirm linkage with `grep RNCAsyncStorage ios/Podfile.lock`.
 
 ## Web app (`web/`)
 

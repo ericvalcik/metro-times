@@ -16,7 +16,7 @@ import {
   IBMPlexMono_700Bold_Italic,
 } from '@expo-google-fonts/ibm-plex-mono';
 
-import { AppContextProvider } from '@/components/AppContext';
+import { SelectedStopsProvider } from '@/hooks/use-selected-stops';
 
 const BlackTheme = {
   ...DarkTheme,
@@ -66,7 +66,7 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AppContextProvider>
+      <SelectedStopsProvider>
         <ThemeProvider value={BlackTheme}>
           <Stack
             screenOptions={{
@@ -83,7 +83,7 @@ export default function RootLayout() {
             <Stack.Screen name="widget-entry" />
           </Stack>
         </ThemeProvider>
-      </AppContextProvider>
+      </SelectedStopsProvider>
     </QueryClientProvider>
   );
 }

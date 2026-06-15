@@ -5,6 +5,8 @@ export function parseDeparture(departure: Departure) {
   return {
     predicted: new Date(departure.departure.timestamp_predicted),
     direction: departure.trip.headsign,
+    name: departure.route.short_name,
+    type: departure.route.type,
   };
 }
 

@@ -1,37 +1,72 @@
-import { FC, useEffect } from 'react';
+import { FC, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 
 import MetroIcon from '@/assets/icons/metro.svg';
 import { fetchStops } from '@/api/fetchStops';
-import { useAppContext } from '@/components/AppContext';
-import { typeToColor } from '@/components/Tag';
-import { allStops, Stop } from '@/data/stops';
+import { lineColor } from '@/components/Tag';
+import { CompactStop, isMetroType } from '@/data/stops';
 import { useCurrentTime } from '@/hooks/use-current-time';
 import { useGeolocation } from '@/hooks/use-geolocation';
+import { useSelectedStops } from '@/hooks/use-selected-stops';
 import { calcDistance, parseDeparture, parseMiliseconds } from '@/lib/utils';
 import { Departure as DepartureType } from '@/types';
 
-const uniqByHeadsign = (departures: DepartureType[]): DepartureType[] => {
-  const seen = new Set<string>();
-  const out: DepartureType[] = [];
+const NEUTRAL_ICON_COLOR = '#9A9A9A';
+
+type DepartureGroup = {
+  first: DepartureType;
+  second?: DepartureType;
+};
+
+/** Group departures by headsign (preserving order), keeping the next two per destination. */
+const groupByHeadsign = (departures: DepartureType[]): DepartureGroup[] => {
+  const order: string[] = [];
+  const byHeadsign = new Map<string, DepartureType[]>();
   for (const d of departures) {
     const key = d.trip.headsign;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(d);
+    if (!byHeadsign.has(key)) {
+      byHeadsign.set(key, []);
+      order.push(key);
+    }
+    byHeadsign.get(key)!.push(d);
   }
-  return out;
+  return order.map((key) => {
+    const list = byHeadsign.get(key)!;
+    return { first: list[0], second: list[1] };
+  });
+};
+
+/** Icon color for a stop card: its first metro line, else a neutral gray. */
+const stopIconColor = (stop: CompactStop): string => {
+  const metroPlatform = stop.stops.find((p) => isMetroType(p.type));
+  return metroPlatform
+    ? lineColor(metroPlatform.type, metroPlatform.lines[0])
+    : NEUTRAL_ICON_COLOR;
 };
 
 export const Departures: FC = () => {
-  const { stops, setStops } = useAppContext();
+  const { selectedStops, hydrated } = useSelectedStops();
   const coords = useGeolocation();
 
-  const queryKey = stops.reduce<string[]>(
-    (acc, stop) => acc.concat(stop.stops),
-    [],
+  // The selected stops are the candidate pool; show the 5 closest to the user.
+  const stops = useMemo<CompactStop[]>(() => {
+    if (!coords) return [];
+    return selectedStops
+      .map((stop) => ({
+        stop,
+        distance: calcDistance(coords, [stop.avgLat, stop.avgLon]),
+      }))
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, 5)
+      .map(({ stop }) => stop);
+  }, [coords, selectedStops]);
+
+  const queryKey = useMemo(
+    () => stops.flatMap((stop) => stop.stops.map((p) => p.id)),
+    [stops],
   );
+
   const { isPending, isError, data, error } = useQuery({
     queryKey: ['stops', queryKey],
     queryFn: fetchStops,
@@ -39,24 +74,20 @@ export const Departures: FC = () => {
     enabled: queryKey.length > 0,
   });
 
-  useEffect(() => {
-    if (!coords) return;
-    const nextStops = allStops
-      .map((stop) => {
-        const distance = calcDistance(coords, [stop.lat, stop.lon]);
-        return { distance, ...stop };
-      })
-      .sort((a, b) => a.distance - b.distance)
-      .slice(0, 5);
-    setStops([...nextStops]);
-  }, [coords, setStops]);
+  if (!hydrated) {
+    return <Text style={styles.status}>Loading...</Text>;
+  }
+
+  if (selectedStops.length === 0) {
+    return (
+      <Text style={styles.status}>
+        No stops selected. Add some on the Stations tab.
+      </Text>
+    );
+  }
 
   if (!coords) {
     return <Text style={styles.status}>Getting location...</Text>;
-  }
-
-  if (stops.length === 0) {
-    return null;
   }
 
   if (isPending) {
@@ -67,19 +98,15 @@ export const Departures: FC = () => {
     return <Text style={styles.status}>Error: {error.message}</Text>;
   }
 
-  if (!data) {
-    return null;
-  }
+  // The API returns one departures array per requested group; bad requests
+  // return an error object instead, so guard before reading data[0].
+  const departures = Array.isArray(data?.[0]) ? data[0] : [];
 
   return (
     <View style={styles.root}>
       <View style={styles.list}>
         {stops.map((stop) => (
-          <StopDepartureGroup
-            allDepartures={data[0]}
-            stop={stop}
-            key={stop.name}
-          />
+          <StopDepartureGroup allDepartures={departures} stop={stop} key={stop.id} />
         ))}
       </View>
     </View>
@@ -88,12 +115,11 @@ export const Departures: FC = () => {
 
 const StopDepartureGroup: FC<{
   allDepartures: DepartureType[];
-  stop: Stop;
+  stop: CompactStop;
 }> = ({ allDepartures, stop }) => {
-  const stopDepartures = uniqByHeadsign(
-    allDepartures.filter((departure) =>
-      stop.stops.includes(departure.stop?.id),
-    ),
+  const platformIds = new Set(stop.stops.map((p) => p.id));
+  const stopDepartures = groupByHeadsign(
+    allDepartures.filter((departure) => platformIds.has(departure.stop?.id)),
   );
 
   if (stopDepartures.length === 0) {
@@ -103,28 +129,45 @@ const StopDepartureGroup: FC<{
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <MetroIcon width={21} height={22} fill={typeToColor[stop.type]} />
+        <MetroIcon width={21} height={22} fill={stopIconColor(stop)} />
         <Text style={styles.stopName}>{stop.name}</Text>
       </View>
-      {stopDepartures.map((departure, index) => (
-        <Departure key={index} departure={departure} />
+      {stopDepartures.map((group, index) => (
+        <Departure key={index} group={group} />
       ))}
     </View>
   );
 };
 
-const Departure: FC<{ departure: DepartureType }> = ({ departure }) => {
+const Departure: FC<{ group: DepartureGroup }> = ({ group }) => {
   const currentTime = useCurrentTime();
-  const { predicted, direction } = parseDeparture(departure);
+  const { predicted, direction, name, type } = parseDeparture(group.first);
   const diff = predicted.getTime() - currentTime.getTime();
   const secondsLeft = Math.round(diff / 1000);
 
+  const nextDiff = group.second
+    ? new Date(group.second.departure.timestamp_predicted).getTime() -
+      currentTime.getTime()
+    : null;
+
   return (
     <View style={styles.row}>
-      <Text style={styles.rowText}>{direction}</Text>
-      <Text style={styles.rowText}>
-        {secondsLeft < 0 ? 'Departing' : parseMiliseconds(diff)}
-      </Text>
+      <View style={styles.rowTop}>
+        <Text style={[styles.rowName, { color: lineColor(type, name) }]}>
+          {name}
+        </Text>
+        <Text style={styles.rowDirection} numberOfLines={1}>
+          {direction}
+        </Text>
+      </View>
+      <View style={styles.rowTimers}>
+        <Text style={styles.rowTimer}>
+          {secondsLeft < 0 ? 'Departing' : parseMiliseconds(diff)}
+        </Text>
+        {nextDiff !== null && nextDiff > 0 && (
+          <Text style={styles.rowTimerNext}>({parseMiliseconds(nextDiff)})</Text>
+        )}
+      </View>
     </View>
   );
 };
@@ -157,12 +200,39 @@ const styles = StyleSheet.create({
     fontFamily: 'IBMPlexMono_600SemiBold',
   },
   row: {
+    flexDirection: 'column',
+    gap: 2,
+  },
+  rowTop: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'baseline',
     gap: 8,
   },
-  rowText: {
+  rowName: {
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: 'IBMPlexMono_600SemiBold',
+  },
+  rowDirection: {
     color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '400',
+    fontFamily: 'IBMPlexMono_400Regular',
+    flexShrink: 1,
+  },
+  rowTimers: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 6,
+  },
+  rowTimer: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '400',
+    fontFamily: 'IBMPlexMono_400Regular',
+  },
+  rowTimerNext: {
+    color: '#9A9A9A',
     fontSize: 16,
     fontWeight: '400',
     fontFamily: 'IBMPlexMono_400Regular',
