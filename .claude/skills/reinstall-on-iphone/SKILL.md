@@ -1,6 +1,6 @@
 ---
 name: reinstall-on-iphone
-description: Re-build, re-sign, re-install, and verify the Metro Times app on a USB-connected iPhone using the free personal Apple ID. Use when the user wants to put the app back on their phone, re-sign the weekly-expired build, fix a "could not be verified"/"Untrusted Developer" launch failure, or asks to rebuild/reinstall/redeploy Metro Times to their device.
+description: Re-build, re-sign, re-install, and verify the Metro Times app on the iPhone (over Wi-Fi, no cable required once paired) using the free personal Apple ID. Use when the user wants to put the app back on their phone, re-sign the weekly-expired build, fix a "could not be verified"/"Untrusted Developer" launch failure, or asks to rebuild/reinstall/redeploy Metro Times to their device.
 ---
 
 # Reinstall Metro Times on iPhone
@@ -17,8 +17,10 @@ the standalone (no-dev-server) install. Background and one-time setup live in
    ```bash
    xcrun devicectl list devices
    ```
-   The iPhone must show **State `available (paired)`** (it will, even when locked). If
-   so, proceed — do not block on anything else.
+   The iPhone must show **State `available (paired)`** (it will, even when locked, and
+   even with no cable plugged in — confirmed end-to-end 2026-08: build, `devicectl
+   install`, and launch all succeeded over Wi-Fi with zero USB connection). If so,
+   proceed — do not block on anything else.
 
    ⚠️ **Do NOT gate on `xcrun xctrace list devices`.** It uses an older connection path
    that frequently reports a perfectly-connected phone as `== Devices Offline ==` (seen

@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-# Re-sign + reinstall + verify Metro Times on a USB-connected iPhone using the
+# Re-sign + reinstall + verify Metro Times on the iPhone over Wi-Fi, using the
 # free personal Apple ID. Free-team signatures expire after 7 days, so re-run
 # this weekly (or whenever the app shows "could not be verified" on launch).
 #
-# Usage:  plug the iPhone in, unlock it, then:  ./reinstall-iphone.sh
+# Usage:  unlock the iPhone (same Wi-Fi as this Mac), then:  ./reinstall-iphone.sh
+# No cable needed, as long as the phone has been paired with this Mac once
+# before (plug in once, "Trust This Computer", open it in Xcode's
+# Window > Devices and Simulators — after that it stays paired over Wi-Fi).
 #
 # Note: this builds from the existing native ios/ project (gitignored). If you
 # re-run `expo prebuild`, the signing tweaks are regenerated away — re-apply
@@ -13,7 +16,9 @@ cd "$(dirname "$0")"
 
 BUNDLE_ID="com.valcik.metrotimes"
 
-# Auto-detect the first connected physical iPhone's UDID.
+# Auto-detect the first paired physical iPhone's UDID (works over Wi-Fi once
+# paired — no cable required). xctrace lists paired-but-offline-cable devices
+# too, so this still finds it.
 UDID=$(xcrun xctrace list devices 2>/dev/null \
   | sed -n '/== Devices ==/,/== Simulators ==/p' \
   | grep -i 'iphone' \
@@ -21,7 +26,9 @@ UDID=$(xcrun xctrace list devices 2>/dev/null \
   | head -1)
 
 if [ -z "${UDID:-}" ]; then
-  echo "❌ No iPhone detected. Plug it in via USB, unlock it, tap 'Trust This Computer', then retry."
+  echo "❌ No paired iPhone found. Plug it in via USB once, unlock it, tap"
+  echo "   'Trust This Computer', then retry — after that it should stay"
+  echo "   reachable over Wi-Fi for future runs."
   exit 1
 fi
 
