@@ -6,8 +6,9 @@ description: Re-build, re-sign, re-install, and verify the Metro Times app on th
 # Reinstall Metro Times on iPhone
 
 Free Apple ID signatures expire after 7 days. This re-signs, reinstalls, and verifies
-the standalone (no-dev-server) install. Background and one-time setup live in
-`PUT_ON_IPHONE_PLAN.md`; this skill is the recurring re-sign flow.
+the standalone (no-dev-server) install. This skill is the recurring re-sign flow.
+(`PUT_ON_IPHONE_PLAN.md` used to hold the one-time setup notes; it was deleted in
+`20afa2f`. Everything still needed now lives in this file and in `mobile/plugins/`.)
 
 ## Workflow
 
@@ -75,11 +76,25 @@ the standalone (no-dev-server) install. Background and one-time setup live in
   verify `grep -c "ENABLE_USER_SCRIPT_SANDBOXING = NO" ios/MetroTimes.xcodeproj/project.pbxproj`
   is 4 and that the plugin is still registered. NOTE: a build into Xcode's *default*
   DerivedData can keep a stale empty bundle — this script's clean `ios/build/ddp` avoids that.
-- The native `ios/` project is gitignored. If the user ran `expo prebuild` since the
-  last install, the signing tweaks are wiped — re-apply `CODE_SIGN_STYLE = Automatic`
-  (both target configs in `ios/MetroTimes.xcodeproj/project.pbxproj`) and flip the
-  `LaunchAction` build config to `Release` in `MetroTimes.xcscheme`, per
-  `PUT_ON_IPHONE_PLAN.md`, before running the script.
+- **`expo prebuild` needs no manual follow-up any more.** The native `ios/` project is
+  still gitignored and still regenerated, but every tweak it used to wipe is now an
+  Expo config plugin in `mobile/plugins/`, registered in `app.json`:
+  `with-ios-scene-lifecycle` (UIScene adoption — without it iOS 26+ terminates the app
+  at launch), `with-ios-deployment-target` (iOS 16.0 floor for the app and every pod),
+  `with-free-signing` (`CODE_SIGN_STYLE = Automatic` so `-allowProvisioningUpdates` can
+  sign on the free team) and `with-disable-script-sandboxing`. Verified end to end:
+  `expo prebuild --platform ios --clean` followed by a plain `./reinstall-iphone.sh`
+  reproduces a working install with no hand edits. The script builds
+  `-configuration Release` explicitly, so the scheme's `LaunchAction` config is
+  irrelevant to it — that only matters for ⌘R in Xcode.
+- **Crash on launch? Pull the real crash report — don't guess.** The script's
+  "VERIFIED launch" only proves the process spawned.
+  `xcrun devicectl device info files --device <UDID> --domain-type systemCrashLogs`
+  lists them, then
+  `xcrun devicectl device copy from --device <UDID> --domain-type systemCrashLogs --source <name>.ips --destination ./crash.ips`.
+  An `.ips` is a JSON header line + JSON body; the triggered thread's frames name the
+  fault. `log stream` does not work against a device on this Mac, and `--console`
+  only shows JS-level output, so a native termination prints nothing useful.
 - **Stock-Expo icon after an icon change?** The gitignored `pbxproj` froze
   `ASSETCATALOG_COMPILER_APPICON_NAME = expo` from the very first prebuild, but the
   asset catalog now ships the icon under `AppIcon.appiconset`. Because `expo prebuild`

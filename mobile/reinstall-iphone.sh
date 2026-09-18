@@ -8,9 +8,9 @@
 # before (plug in once, "Trust This Computer", open it in Xcode's
 # Window > Devices and Simulators — after that it stays paired over Wi-Fi).
 #
-# Note: this builds from the existing native ios/ project (gitignored). If you
-# re-run `expo prebuild`, the signing tweaks are regenerated away — re-apply
-# CODE_SIGN_STYLE=Automatic + the Release LaunchAction.
+# Note: this builds from the existing native ios/ project (gitignored). Re-running
+# `expo prebuild` is safe — the signing, UIScene and deployment-target tweaks are
+# all config plugins in plugins/ (see app.json), so they are regenerated with it.
 set -euo pipefail
 cd "$(dirname "$0")"
 

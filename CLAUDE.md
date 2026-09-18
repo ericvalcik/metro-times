@@ -60,6 +60,27 @@ Times-tab data flow on each render:
 - Theme is forced dark (`#000000` background) via a tweaked `DarkTheme` in `_layout.tsx`. Don't introduce a light-mode branch unless the user asks.
 - Fonts: **IBM Plex Mono** (Regular / Medium / SemiBold / Bold + italics) loaded via `@expo-google-fonts/ibm-plex-mono`. The default `Text` component is monkey-patched in `_layout.tsx` to use `IBMPlexMono_400Regular` as its default style — explicit `fontFamily` overrides still win.
 
+### iOS native config plugins (`mobile/plugins/`)
+
+`ios/` is gitignored and regenerated, so everything the native build needs is an Expo
+config plugin registered in `app.json`. Order matters: all of these run **after**
+`@bacons/apple-targets`, and `with-disable-script-sandboxing` stays last.
+
+- `with-ios-scene-lifecycle` — iOS 26+ terminates apps that haven't adopted the UIScene
+  lifecycle (`EXC_BREAKPOINT` in `_UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption`).
+  Expo SDK 55 / RN 0.83 ship neither piece. The `UIApplicationSceneManifest` Info.plist
+  key alone is **not** enough — this also injects a `SceneDelegate` and
+  `configurationForConnecting` into `AppDelegate.swift`.
+- `with-ios-deployment-target` — pins iOS **16.0**. Needed because `expo-router@55` calls
+  `UIAction.subtitle` (iOS 16+) unguarded despite a 15.1 podspec, and because some pods'
+  resource-bundle targets keep pre-15.0 targets that current Xcode rejects.
+- `with-free-signing` — `CODE_SIGN_STYLE = Automatic` so `-allowProvisioningUpdates` can
+  sign on the free personal team.
+- `with-disable-script-sandboxing` — see the `reinstall-on-iphone` skill.
+
+Each fails loudly if its anchor in the generated file moves, rather than silently
+emitting an app that crashes at launch.
+
 ### Key conventions
 
 - Path aliases (`mobile/tsconfig.json`): `@/*` → `mobile/src/*`, `@/assets/*` → `mobile/assets/*`. Use these instead of relative paths.
@@ -68,7 +89,7 @@ Times-tab data flow on each render:
 - Metro line colors live in `typeToColor` in `mobile/src/components/Tag.tsx` (A=green `#50AF32`, B=yellow `#FFD500`, C=red `#E63024`). Reuse this map rather than redefining hex values.
 - `mobile/src/data/stops.ts` is the source of truth for stop metadata; each entry has both directional platform IDs (`stops: [...]`) so a single API query covers both directions at one station.
 - Files with a `.web.tsx` / `.web.ts` sibling (`app-tabs.web.tsx`, `animated-icon.web.tsx`, `use-color-scheme.web.ts`) are picked up by Metro's web target. Keep native and web variants in sync when changing the shared file.
-- **Adding a native dependency requires a `pod install` before the next device build.** After installing a package that ships a native module (e.g. `@react-native-async-storage/async-storage`), run `pod install --project-directory=ios` from `mobile/` — otherwise the standalone build links no native side and crashes on launch with `RCTFatalException: NativeModule: <X> is null`. `pod install` is sufficient and is safer than `expo prebuild`, which regenerates the gitignored `ios/` project and wipes the manual free-signing tweaks. JS-only deps (e.g. `@shopify/flash-list` v2 — no podspec) need nothing; Expo Go / simulator reloads never need a rebuild. Confirm linkage with `grep RNCAsyncStorage ios/Podfile.lock`.
+- **Adding a native dependency requires a `pod install` before the next device build.** After installing a package that ships a native module (e.g. `@react-native-async-storage/async-storage`), run `pod install --project-directory=ios` from `mobile/` — otherwise the standalone build links no native side and crashes on launch with `RCTFatalException: NativeModule: <X> is null`. `pod install` is sufficient and is quicker than `expo prebuild`, which regenerates the whole gitignored `ios/` project (safe to run now — the free-signing, UIScene and deployment-target tweaks are config plugins in `mobile/plugins/`, so prebuild reproduces them). JS-only deps (e.g. `@shopify/flash-list` v2 — no podspec) need nothing; Expo Go / simulator reloads never need a rebuild. Confirm linkage with `grep RNCAsyncStorage ios/Podfile.lock`.
 
 ## Web app (`web/`)
 
