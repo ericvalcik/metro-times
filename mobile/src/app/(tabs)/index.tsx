@@ -24,11 +24,9 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 16,
     paddingBottom: 24,
-    alignItems: "center",
   },
   inner: {
     width: "100%",
-    maxWidth: 338,
     paddingTop: 48,
   },
 });
